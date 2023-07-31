@@ -2,13 +2,13 @@
 ; .............: Begin Section
 ; Section .....: Auto-Execution
 ;=======================================================================================================================
-; #Warn  ; Enable warnings to assist with detecting common errors.
+#Warn All, OutputDebug ; Enable warnings to assist with detecting common errors.
 ; SetWinDelay 0 ; (AJB - 06/2023) - comment out for testing
 ; SetControlDelay 0 ; (AJB - 06/2023) - comment out for testing
-; SetBatchLines, -1 ; scrip run speed, The value -1 = max speed possible. ; (AJB - 05/2023)comment out for testing
-; https://www.autohotkey.com/docs/v1/lib/SetBatchLines.htm
-; SetWinDelay, -1 ; (AJB - 05/2023) - comment out for testing
-; SetControlDelay, -1 ; (AJB - 05/2023) - comment out for testing
+SetBatchLines, -1 ; scrip run speed, The value -1 = max speed possible. ; (AJB - 05/2023)comment out for testing
+; ; https://www.autohotkey.com/docs/v1/lib/SetBatchLines.htm
+SetWinDelay, -1 ; (AJB - 05/2023) - comment out for testing
+SetControlDelay, -1 ; (AJB - 05/2023) - comment out for testing
 ;#MaxMem 4095 ; Allows the maximum amount of MB per variable.
 ;#MaxThreads 255 ; Allows a maximum of 255 instead of default threads.
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.; Avoids checking empty variables to see if they are environment variables.
@@ -21,7 +21,7 @@ DetectHiddenText,On
 DetectHiddenWindows, On
 #Requires AutoHotkey 1.1+
 ; --------------------------------------------------------------------------------
-; #Include, <AHK-libs-and-classes-collection-master\libs\o-z\Toolbar>
+; #Include <AHK-libs-and-classes-collection-master\libs\Toolbar>
 Startup_Shortcut := A_Startup "\" A_ScriptName ".lnk"
 ; --------------------------------------------------------------------------------
 ; #Include <AHK-libs-and-classes-collection-master\libs\g-n\gdip>
@@ -32,7 +32,6 @@ Startup_Shortcut := A_Startup "\" A_ScriptName ".lnk"
 ; Author .......: Overcast (Adam Bacon), Terry Keatts, and special assistance from Descolada
 ; License ......: WTFPL - http://www.wtfpl.net/txt/copying/
 
-;TraySetIcon("HznHorizon.ico")
 ; //TODO: 2023.07.17 ...: Work on the below but consider if needed due to new FreeLibraryAndExitThread
 ; //TODO: Library_Load(winuser.dll)
 ; //TODO: Library_Load(processthreadsapi.dll)
@@ -73,6 +72,7 @@ ICON := "HznHorizon.ico"
 ; buildTrayMenu()
 ; buildTrayMenu()
 ; {
+;TraySetIcon("HznHorizon.ico")
 Menu, Tray, Icon,% ICON ; this changes the icon into a little Horizon thing.
 Menu, Tray, NoStandard
 addTrayMenuOption("Made with nerd by Adam Bacon and Terry Keatts", "madeBy")
@@ -80,17 +80,52 @@ addTrayMenuOption()
 addTrayMenuOption("Run at startup", "runAtStartup")
 Menu, Tray, % fileExist(Startup_Shortcut) ? "Check" : "Uncheck", Run at startup ; update the tray menu status on startup
 addTrayMenuOption()
+addTrayMenuOption()
+addTrayMenuOption("Open Horizon (Hotkey: #h) (# = win key)", "runHorizon")
+addTrayMenuOption()
 Menu, Tray, Standard
 ; }
+; --------------------------------------------------------------------------------
+; Sub-Section .....: Create Tray Menu Functions
+; Description .....: addTrayMenuOption() ; madeBy() ; runAtStartup() ; trayNotify()
+; --------------------------------------------------------------------------------
 
-; ********************************************** ... First Return ... **************************************************
+addTrayMenuOption(label = "", command = "") {
+	if (label = "" && command = "") {
+		Menu, Tray, Add
+	} else {
+		Menu, Tray, Add, % label, % command
+	}
+}
 
-; ********************************************** ... First Return ... **************************************************
-
-; ...............: End Sub-Section
-;=======================================================================================================================
+madeBy(){
+	; visit authors website
+	;Run, https://bibeka.com.np/
+	MsgBox This was made by nerds, for nerds. Regular people are ok too, lol.`nModified by Adam Bacon`nCredit:Made with ❤️ by Bibek Aryal
+}
+runHorizon(){
+	; visit authors website
+	;Run, https://bibeka.com.np/
+	Run, % A_ProgramFiles "\FMGlobal\Horizon\HznHorizonMgr.exe"
+}
+runAtStartup() {
+	if (FileExist(startup_shortcut)) {
+		FileDelete, % startup_shortcut
+		Menu, Tray, % "unCheck", Run at startup ; update the tray menu status on change
+		trayNotify("Startup shortcut removed", "This script will not run when you turn on your computer.")
+	} else {
+		FileCreateShortcut, % a_scriptFullPath, % startup_shortcut
+		Menu, Tray, % "check", Run at startup ; update the tray menu status on change
+		trayNotify("Startup shortcut added", "This script will now automatically run when your turn on your computer.")
+	}
+}
+trayNotify(title, message, seconds = "", options = 0) {
+	TrayTip, %title%, %message%, %seconds%, %options%
+}
+Return
 ; <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+#h::
+runHorizon()
 #IfWinActive ahk_exe hznhorizon.exe
 
 ; --------------------------------------------------------------------------------
@@ -138,17 +173,36 @@ return
 ; --------------------------------------------------------------------------------
 #If WinActive("ahk_exe hznhorizon.exe")
 
-^i::button()
-^b::button()
-^u::button()
+^i::
+{
+    keywait, i, L
+    OutputDebug % ErrorLevel "`n"
+    button()
+}
+Return
+^b::
+{
+    keywait, b, L
+    button()
+}
+Return
+^u::
+{
+    keywait, u, L
+    button()
+}
+Return
 button(){
-    SendLevel 50
+    SendLevel 5
     ControlGetFocus, fCtl, A
-    bID := SubStr(fCtl, 0, 1)
+    bID := SubStr(fCtl, -1, 1)
+    OutputDebug % "bID: " bID "`n"
+    cID := SubStr(A_ThisHotkey, 0, 1)
+    OutputDebug % "cID: " cID "`n"
     ControlGet, hToolbar, hWnd,,% "msvb_lib_toolbar" bID, A
-    hIDx := A_ThisHotkey = "^i" ? 2 ; ..............: italic = 2
-          : A_ThisHotkey = "^b" ? 1 ; ..............: bold = 1
-          : A_ThisHotkey = "^u" ? 3 : 9 ;10 ; .........: underline = 9 and 10 (if available, else italic or bold)
+    hIDx := (cID = "i") ? 2 ; ..............: italic = 2
+          : (cID = "b") ? 1 ; ..............: bold = 1
+          : (cID = "u") ? 3 : 21 ;9 ;10 ; .........: underline = 9 and 10 (if available, else italic or bold)
     HznButton(hToolbar,hIDx)
 }
 ; TODO Test stuff for above function
@@ -211,6 +265,26 @@ HznSelectAll()
 }
 
 ; --------------------------------------------------------------------------------
+; Function .....: Test Function
+; Description ..: Testing function
+; Definition ...: hWndToolbar = the toolbar window's handle
+; Definition ...: n = the index for the specified button
+; Author .......: Descolada, Overcast (Adam Bacon)
+; --------------------------------------------------------------------------------
+#6::
+#Warn All, OutputDebug
+SendLevel 5
+ControlGetFocus, fCtl, A
+bID := SubStr(fCtl, 0, 1)
+ControlGet, hToolbar, hWnd,,% "msvb_lib_toolbar" bID, A
+Send % "hToolbar: " . hToolbar
+tb := New Toolbar()
+tbTest := tb.GetCount()
+hiddenbuttons := tb.GetHiddenButtons()
+btnct := tb.GetCount()
+msgbox, % "hiddenbuttons: " . hiddenbuttons . "ButtonCount: " . btnct . "Presets?: " . tbPresets
+return
+; --------------------------------------------------------------------------------
 ; Function .....: HznButton()
 ; Description ..: Find and Control-Click the Horizon msvb_lib_toolbar buttons
 ; Definition ...: hWndToolbar = the toolbar window's handle
@@ -224,21 +298,24 @@ SendMessage(hWnd, Msg, wParam, lParam)
 HznButton(hToolbar, n)
 {
 ;   Step: set the Static variables
-    Static TB_BUTTONCOUNT  := 1048 ; 0x0418
-    Static TB_GETBUTTON    := 1047 ; 0x417,
-    Static TB_GETITEMRECT  := 1053 ; 0x41D,
-    Static MEM_COMMIT      := 4096 ; 0x1000, ; 0x00001000, ; via MSDN Win32 
-    Static MEM_RESERVE     := 8192 ; 0x2000, ; 0x00002000, ; via MSDN Win32
-    Static MEM_PHYSICAL    := 4 ; 0x04    ; 0x00400000, ; via MSDN Win32
-    Static MEM_PROTECT     := 64 ; 0x40 ;  
-    Static MEM_RELEASE     := 32768 ; 0x8000 ;  
+    Static TB_BUTTONCOUNT   := 1048 ; 0x0418
+    Static TB_GETBUTTON     := 1047 ; 0x417,
+    Static TB_GETITEMRECT   := 1053 ; 0x41D,
+    Static MEM_COMMIT       := 4096 ; 0x1000, ; 0x00001000, ; via MSDN Win32 
+    Static MEM_RESERVE      := 8192 ; 0x2000, ; 0x00002000, ; via MSDN Win32
+    Static MEM_PHYSICAL     := 4 ; 0x04    ; 0x00400000, ; via MSDN Win32
+    Static MEM_PROTECT      := 64 ; 0x40 ;  
+    Static MEM_RELEASE      := 32768 ; 0x8000
 ;   [in]   SIZE_T dwSize, ; The size of the region of memory to allocate, in bytes.
-    Static  dwSize          := 32  
+    Static dwSize           := 32
+    Static TB_GETSTATE      := 1042 ; 0x0412
+    Static TB_PRESSBUTTON   := 1027 ; 0x0403
+    targetProcessID := ""
+    bytesRead := ""
 ;   Step: count and load all the msvb_lib_toolbar buttons into memory
-	; SendMessage, TB_BUTTONCOUNT, 0, 0,,% "ahk_id " hToolbar
-	; buttonCount := ErrorLevel
-    ; buttonCount := HznButtonCount( hToolbar )
-    buttonCount := HznButtonCount( hToolbar )
+	SendMessage, TB_BUTTONCOUNT, 0, 0,,% "ahk_id " hToolbar
+	buttonCount := ErrorLevel
+    OutputDebug, % "btnct: " . buttonCount "`n"
 	if (n >= 1 && n <= buttonCount) {
 		; Step: Get the PIDfromHwnd() using DllCall
 		DllCall("GetWindowThreadProcessId", "Ptr", hToolbar, "UIntP", targetProcessID)
@@ -262,7 +339,7 @@ HznButton(hToolbar, n)
         ; , "Ptr") ; original
         ; If the pages are being committed, you can specify any one of the memory protection constants
         ; reference <https://learn.microsoft.com/en-us/windows/win32/Memory/memory-protection-constants>.
-		SendMessage, TB_GETITEMRECT, % n-1, remoteMemory, ,% "ahk_id " hToolbar
+        SendMessage, TB_GETITEMRECT, &n-1, remoteMemory, ,% "ahk_id " . hToolbar
         ; SendMessage(hToolbar,TB_GETITEMRECT, &(n-1), remoteMemory)
 		VarSetCapacity(RECT, dwSize, 0)
 		DllCall("ReadProcessMemory", "Ptr", hProcess, "Ptr", remoteMemory, "Ptr", &RECT, "UPtr", dwSize, "UIntP", bytesRead, "Int")
@@ -288,6 +365,7 @@ HznButton(hToolbar, n)
 	DllCall("FreeLibrary", "Ptr", hProcess) ; added 06.23.2023
 	DllCall("FreeLibrary", "Ptr", remoteMemory) ; added 06.23.2023
 	DllCall("CloseHandle", "Ptr", hToolbar) ; added 06.23.2023
+    
 }
 
 HznButtonCount( hToolbar )
@@ -297,17 +375,7 @@ HznButtonCount( hToolbar )
 	buttonCount := ErrorLevel
     Return buttonCount
 }
-#6::
-#Warn All, OutputDebug
-SendLevel 1
-ControlGetFocus, fCtl, A
-bID:= SubStr(fCtl, 0, 1)
-; ControlGet, ctrlhwnd, hWnd,,% "msvb_lib_toolbar" bID, A
-; EnumToolbarButtons(ctrlhwnd)
-ControlGet, hCtl, hWnd,,% "msvb_lib_toolbar" bID, A
 
-
-return
 
 EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 {
@@ -847,7 +915,9 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     GetCount()
     {
-        SendMessage, this.TB_BUTTONCOUNT, 0, 0,, % "ahk_id " this.tbHwnd
+        Static TB_BUTTONCOUNT   := 1048 ; 0x0418
+        Global hToolbar
+        SendMessage, this.TB_BUTTONCOUNT, 0, 0,, % "ahk_id " this.hToolbar
         return ErrorLevel
     }
 ;=======================================================================================
@@ -1168,7 +1238,7 @@ Class Toolbar extends Toolbar.Private
         this.DefaultBtnInfo := []
         If (!Buttons.Length())
             this.DefaultBtnInfo.Push({Icon: -1, ID: "", State: ""
-                                       , Style: this.BTNS_SEP, Text: "", Label: ""})
+                                    , Style: this.BTNS_SEP, Text: "", Label: ""})
         If (Options = "")
             Options := "Enabled"
         For each, Button in Buttons
@@ -1380,7 +1450,7 @@ Class Toolbar extends Toolbar.Private
                         .    ":" Icon+1 (Style ? "(" Style ")" : "")) : "") ", "
                 If (ArrayOut)
                     BtnArray.Push({Icon: Icon, ID: ID, State: State
-                                   , Style: Style, Text: Text, Label: Label})
+                                    , Style: Style, Text: Text, Label: Label})
             }
             return ArrayOut ? BtnArray : RTrim(BtnString, ", ")
         }
@@ -2149,41 +2219,7 @@ MyIcon_B64()
 		)"
 		return icostr
 } 
-; --------------------------------------------------------------------------------
-; Sub-Section .....: Create Tray Menu Functions
-; Description .....: addTrayMenuOption() ; madeBy() ; runAtStartup() ; trayNotify()
-; --------------------------------------------------------------------------------
 
-addTrayMenuOption(label = "", command = "") {
-	if (label = "" && command = "") {
-		Menu, Tray, Add
-	} else {
-		Menu, Tray, Add, % label, % command
-	}
-}
-
-madeBy(){
-	; visit authors website
-	;Run, https://bibeka.com.np/
-	MsgBox This was made by nerds, for nerds. Regular people are ok too, lol.`nModified by Adam Bacon`nCredit:Made with ❤️ by Bibek Aryal
-}
-
-runAtStartup() {
-	if (FileExist(startup_shortcut)) {
-		FileDelete, % startup_shortcut
-		Menu, Tray, % "unCheck", Run at startup ; update the tray menu status on change
-		trayNotify("Startup shortcut removed", "This script will not run when you turn on your computer.")
-	} else {
-		FileCreateShortcut, % a_scriptFullPath, % startup_shortcut
-		Menu, Tray, % "check", Run at startup ; update the tray menu status on change
-		trayNotify("Startup shortcut added", "This script will now automatically run when your turn on your computer.")
-	}
-
-}
-trayNotify(title, message, seconds = "", options = 0) {
-	TrayTip, %title%, %message%, %seconds%, %options%
-}
-; --------------------------------------------------------------------------------
 ; ; Static TB_ADDBUTTONS            := 0x0414
 ; Global TB_ADDSTRING             := A_IsUnicode ? 0x044D : 0x041C
 ; Global TB_AUTOSIZE              := 0x0421

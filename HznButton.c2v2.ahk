@@ -1,25 +1,25 @@
-;=======================================================================================================================
+﻿;=======================================================================================================================
 ; .............: Begin Section
 ; Section .....: Auto-Execution
 ;=======================================================================================================================
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 ; SetWinDelay 0 ; (AJB - 06/2023) - comment out for testing
 ; SetControlDelay 0 ; (AJB - 06/2023) - comment out for testing
-; SetBatchLines, -1 ; scrip run speed, The value -1 = max speed possible. ; (AJB - 05/2023)comment out for testing
+; REMOVED: ; SetBatchLines, -1 ; scrip run speed, The value -1 = max speed possible. ; (AJB - 05/2023)comment out for testing
 ; https://www.autohotkey.com/docs/v1/lib/SetBatchLines.htm
 ; SetWinDelay, -1 ; (AJB - 05/2023) - comment out for testing
 ; SetControlDelay, -1 ; (AJB - 05/2023) - comment out for testing
-;#MaxMem 4095 ; Allows the maximum amount of MB per variable.
+; REMOVED: ;#MaxMem 4095 ; Allows the maximum amount of MB per variable.
 ;#MaxThreads 255 ; Allows a maximum of 255 instead of default threads.
-#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.; Avoids checking empty variables to see if they are environment variables.
-#Persistent ; Keeps script permanently running
-#SingleInstance,Force
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-SetTitleMatchMode, 2 ; sets title matching to search for "containing" instead of "exact"
-DetectHiddenText,On
-DetectHiddenWindows, On
-#Requires AutoHotkey 1.1+
+; REMOVED: #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.; Avoids checking empty variables to see if they are environment variables.
+Persistent ; Keeps script permanently running
+#SingleInstance Force
+SendMode("Input")  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir(A_ScriptDir)  ; Ensures a consistent starting directory.
+SetTitleMatchMode(2) ; sets title matching to search for "containing" instead of "exact"
+DetectHiddenText(true)
+DetectHiddenWindows(true)
+#Requires Autohotkey v2.0
 ; --------------------------------------------------------------------------------
 ; #Include, <AHK-libs-and-classes-collection-master\libs\o-z\Toolbar>
 Startup_Shortcut := A_Startup "\" A_ScriptName ".lnk"
@@ -73,14 +73,15 @@ ICON := "HznHorizon.ico"
 ; buildTrayMenu()
 ; buildTrayMenu()
 ; {
-Menu, Tray, Icon,% ICON ; this changes the icon into a little Horizon thing.
-Menu, Tray, NoStandard
-addTrayMenuOption("Made with nerd by Adam Bacon and Terry Keatts", "madeBy")
-addTrayMenuOption()
-addTrayMenuOption("Run at startup", "runAtStartup")
-Menu, Tray, % fileExist(Startup_Shortcut) ? "Check" : "Uncheck", Run at startup ; update the tray menu status on startup
-addTrayMenuOption()
-Menu, Tray, Standard
+TraySetIcon(ICON) ; this changes the icon into a little Horizon thing.
+; Tray:= A_TrayMenu
+; Tray.Delete() ; V1toV2: not 100% replacement of NoStandard, Only if NoStandard is used at the beginning
+; addTrayMenuOption("Made with nerd by Adam Bacon and Terry Keatts", "madeBy")
+; addTrayMenuOption()
+; addTrayMenuOption("Run at startup", "runAtStartup")
+; Tray.% fileExist(Startup_Shortcut) ? "Check" : "Uncheck"("Run at startup") ; update the tray menu status on startup
+; addTrayMenuOption()
+; Tray.AddStandard()
 ; }
 
 ; ********************************************** ... First Return ... **************************************************
@@ -91,7 +92,7 @@ Menu, Tray, Standard
 ;=======================================================================================================================
 ; <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-#IfWinActive ahk_exe hznhorizon.exe
+#HotIf WinActive("ahk_exe hznhorizon.exe", )
 
 ; --------------------------------------------------------------------------------
 ; Function .....: Horizon {Enter} ==> Select Option
@@ -99,14 +100,14 @@ Menu, Tray, Standard
 ; Author .......: Overcast (Adam Bacon)
 ; TODO .........: Still doesn't work. Might have to not use the WinActive() function
 ; --------------------------------------------------------------------------------
-#If WinActive("ahk_exe hznhorizonmgr.exe") or WinActive("ahk_exe hznhorizon.exe")
+#HotIf WinActive("ahk_exe hznhorizonmgr.exe") or WinActive("ahk_exe hznhorizon.exe")
 {
-	ControlGetFocus, fCtl, A
-	ControlGet, hCtl, hWnd,,% fCtl, A
-	Shift & Enter::DllCall("PostMessage", Ptr, Ctl, UInt,0x0203,Ptr, 0, Ptr, 0)
+	fCtl := ControlGetClassNN(ControlGetFocus("A"))
+	hCtl := ControlGethWnd(fCtl, "A")
+	Shift & Enter::DllCall("PostMessage", "Ptr", Ctl, "UInt", 0x0203, "Ptr", 0, "Ptr", 0)
 }
 return
-#If
+#HotIf
 
 ; --------------------------------------------------------------------------------
 ; Function .....: Horizon Buttons/Hotkeys
@@ -136,16 +137,16 @@ return
 ; ChangeLog ....: 06/05/2023 - CTRL+I and CTRL+B validated for all screens
 ; . Continued ..: CTRL+U only valid for screens which have it listed as a button, else it reverts to CTRL+B or CTRL+I
 ; --------------------------------------------------------------------------------
-#If WinActive("ahk_exe hznhorizon.exe")
+#HotIf WinActive("ahk_exe hznhorizon.exe")
 
 ^i::button()
 ^b::button()
 ^u::button()
 button(){
-    SendLevel 50
-    ControlGetFocus, fCtl, A
-    bID := SubStr(fCtl, 0, 1)
-    ControlGet, hToolbar, hWnd,,% "msvb_lib_toolbar" bID, A
+    SendLevel(50)
+    fCtl := ControlGetClassNN(ControlGetFocus("A"))
+    bID := SubStr(fCtl, -1, 1)
+    hToolbar := ControlGethWnd("msvb_lib_toolbar" bID, "A")
     hIDx := A_ThisHotkey = "^i" ? 2 ; ..............: italic = 2
           : A_ThisHotkey = "^b" ? 1 ; ..............: bold = 1
           : A_ThisHotkey = "^u" ? 3 : 9 ;10 ; .........: underline = 9 and 10 (if available, else italic or bold)
@@ -184,6 +185,7 @@ button(){
 ^v::
 ^z::
 ^y::
+{ ; V1toV2: Added bracket
 ControlGetFocus, focus, A
 bID:= SubStr(focus, 0, 1)
 hIDx:= A_ThisHotkey = "^x" ? 11 ; ........: cut = 11 and 12
@@ -199,15 +201,16 @@ return
 ; --------------------------------------------------------------------------------
 ; Function .....: Horizon Hotkey - Select-All (Ctrl-A)
 ; --------------------------------------------------------------------------------
+} ; V1toV2: Added Bracket before hotkey or Hotstring
 
 ^a::HznSelectAll()
 
 HznSelectAll()
 {
     Static Msg := EM_SETSEL := 177, wParam := 0, lParam := -1
-	ControlGetFocus, fCtl, A
-    ControlGet, hCtl, hWnd,,% fCtl, A
-    DllCall("SendMessage", "Ptr", hCtl, "UInt", Msg, "UInt", wParam, "UIntP", lParam)
+	fCtl := ControlGetClassNN(ControlGetFocus("A"))
+    hCtl := ControlGethWnd(fCtl, "A")
+    DllCall("SendMessage", "Ptr", hCtl, "UInt", Msg, "UInt", wParam, "UIntP", &lParam)
 }
 
 ; --------------------------------------------------------------------------------
@@ -241,7 +244,7 @@ HznButton(hToolbar, n)
     buttonCount := HznButtonCount( hToolbar )
 	if (n >= 1 && n <= buttonCount) {
 		; Step: Get the PIDfromHwnd() using DllCall
-		DllCall("GetWindowThreadProcessId", "Ptr", hToolbar, "UIntP", targetProcessID)
+		DllCall("GetWindowThreadProcessId", "Ptr", hToolbar, "UIntP", &targetProcessID)
 
 		; Step Open the target process with PROCESS_VM_OPERATION, PROCESS_VM_READ, and PROCESS_VM_WRITE access
 		hProcess := DllCall("OpenProcess", "UInt", 0x0018 | 0x0010 | 0x0020, "Int", 0, "UInt", targetProcessID, "Ptr")
@@ -251,39 +254,29 @@ HznButton(hToolbar, n)
         ; Step: Allocate memory for the TBBUTTON structure in the target process's address space
 		; Reference: https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex
 		; Description: LPVOID VirtualAllocEx(
-        remoteMemory := DllCall("VirtualAllocEx"
-        , "Ptr",    hProcess                    ; [in]           HANDLE hProcess,
-        , "Ptr",    0                           ; [in, optional] LPVOID lpAddress, 
-        ; , "UPtr",      16                     ; [in]           SIZE_T dwSize, ; The size of the region of memory to allocate, in bytes.
-        , "UPtr",   dwSize                      ; [in]           SIZE_T dwSize, ; The size of the region of memory to allocate, in bytes.
-        , "UInt",   MEM_COMMIT | MEM_RESERVE    ; [in]           DWORD  flAllocationType,
-        , "UInt",   MEM_PHYSICAL                ; Note: original had MEM_COMMIT only [; , "UInt", 0x1000 ]
-        , "Ptr",    MEM_PROTECT) ; 0x40)                       ; [in]           DWORD  flProtect ; The memory protection for the region of pages to be allocated.
+        remoteMemory := DllCall("VirtualAllocEx"        , "Ptr",    hProcess        , "Ptr",    0
+        , "UPtr",   dwSize        , "UInt",   MEM_COMMIT | MEM_RESERVE        , "UInt",   MEM_PHYSICAL        , "Ptr",    MEM_PROTECT)        ; , "UPtr",      16                     ; [in]           SIZE_T dwSize, ; The size of the region of memory to allocate, in bytes.
         ; , "Ptr") ; original
         ; If the pages are being committed, you can specify any one of the memory protection constants
         ; reference <https://learn.microsoft.com/en-us/windows/win32/Memory/memory-protection-constants>.
-		SendMessage, TB_GETITEMRECT, % n-1, remoteMemory, ,% "ahk_id " hToolbar
+		ErrorLevel := SendMessage(TB_GETITEMRECT, n-1, remoteMemory, , "ahk_id " hToolbar)
         ; SendMessage(hToolbar,TB_GETITEMRECT, &(n-1), remoteMemory)
-		VarSetCapacity(RECT, dwSize, 0)
-		DllCall("ReadProcessMemory", "Ptr", hProcess, "Ptr", remoteMemory, "Ptr", &RECT, "UPtr", dwSize, "UIntP", bytesRead, "Int")
-        DllCall(  "VirtualFreeEx" 
-                , "UInt", hProcess 
-                , "UInt", remoteMemory 
-                , "UInt", 0 
-                , "UInt", MEM_RELEASE)     ; MEM_RELEASE 
+		RECT := Buffer(dwSize, 0) ; V1toV2: if 'RECT' is a UTF-16 string, use 'VarSetStrCapacity(&RECT, dwSize)'
+		DllCall("ReadProcessMemory", "Ptr", hProcess, "Ptr", remoteMemory, "Ptr", RECT, "UPtr", dwSize, "UIntP", &bytesRead, "Int")
+        DllCall("VirtualFreeEx", "UInt", hProcess, "UInt", remoteMemory, "UInt", 0, "UInt", MEM_RELEASE)
 		
         ; get the bounding rectangle for the specified button
-        ControlGetPos, ctrlx, ctrly, ctrlw, ctrlh,, % "ahk_id " hToolbar
+        ControlGetPos(&ctrlx, &ctrly, &ctrlw, &ctrlh, , "ahk_id " hToolbar)
 		X := NumGet(RECT, 0, "int"),
         Y := NumGet(RECT, 4, "int"),
         W := NumGet(RECT, 8, "int") - X,
         H := NumGet(RECT, 12, "int") - Y,
         ; prevDelay := A_ControlDelay ;,
 
-		ControlClick, % "x" (X+W//2) " y" (Y+H//2), % "ahk_id " hToolbar,,,, NA
+		ControlClick("x" (X+W//2) " y" (Y+H//2), "ahk_id " hToolbar, , , , "NA")
 		;SetControlDelay, %prevDelay%
 	} else {
-		MsgBox, 48, Error, % "The specified index " n " is out of range. Please specify a valid index between 1 and " buttonCount "."
+		MsgBox("The specified index " n " is out of range. Please specify a valid index between 1 and " buttonCount ".", "Error", 48)
 	}
 	DllCall("FreeLibrary", "Ptr", hProcess) ; added 06.23.2023
 	DllCall("FreeLibrary", "Ptr", remoteMemory) ; added 06.23.2023
@@ -293,21 +286,23 @@ HznButton(hToolbar, n)
 HznButtonCount( hToolbar )
 {
     Static TB_BUTTONCOUNT  := 1048 ; 0x0418
-    SendMessage, TB_BUTTONCOUNT, 0, 0,,% "ahk_id " hToolbar
+    ErrorLevel := SendMessage(TB_BUTTONCOUNT, 0, 0, , "ahk_id " hToolbar)
 	buttonCount := ErrorLevel
     Return buttonCount
 }
 #6::
+{ ; V1toV2: Added bracket
 #Warn All, OutputDebug
-SendLevel 1
-ControlGetFocus, fCtl, A
-bID:= SubStr(fCtl, 0, 1)
+SendLevel(1)
+fCtl := ControlGetClassNN(ControlGetFocus("A"))
+bID:= SubStr(fCtl, -1, 1)
 ; ControlGet, ctrlhwnd, hWnd,,% "msvb_lib_toolbar" bID, A
 ; EnumToolbarButtons(ctrlhwnd)
-ControlGet, hCtl, hWnd,,% "msvb_lib_toolbar" bID, A
+hCtl := ControlGethWnd("msvb_lib_toolbar" bID, "A")
 
 
 return
+} ; Added bracket before function
 
 EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 {
@@ -332,7 +327,7 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 
     arbtn := []
 
-    ControlGetPos, ctrlx, ctrly, ctrlw, ctrlh,, % "ahk_id " ctrlhwnd
+    ControlGetPos(&ctrlx, &ctrly, &ctrlw, &ctrlh, , "ahk_id " ctrlhwnd)
 
 ; MsgBox % "X: "ctrlx " Y: "ctrly " W: " ctrlw " H: " ctrlh ; 06.25.2023 .. THIS WORKS!!!
 ; MouseMove, ctrlx, ctrly ; 06.25.2023 .. THIS WORKS!!! It actually moves the mouse to the right location!!!
@@ -344,34 +339,25 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 ;                  , "UIntP") ;, pid_target)
 ; OutputDebug, % "pid_target: " . pid_target
 
-    WinGet, pid_target, PID, % "ahk_id " ctrlhwnd ; ==> replaced with above DllCall()
+    pid_target := WinGetPID("ahk_id " ctrlhwnd) ; ==> replaced with above DllCall()
 ; Open the target process with PROCESS_VM_OPERATION, PROCESS_VM_READ, and PROCESS_VM_WRITE access
     hpRemote := DllCall( "OpenProcess" 
-;                  , "uint", 0x18    ; PROCESS_VM_OPERATION|PROCESS_VM_READ ; ==> original
-                    , "UInt", 0x0018 | 0x0010 | 0x0020
-                    , "Int", false
-                    , "UInt", pid_target )
+;                  , "uint", 0x18                    , "UInt", 0x0018 | 0x0010 | 0x0020                    , "Int", false                    , "UInt", pid_target )    ; PROCESS_VM_OPERATION|PROCESS_VM_READ ; ==> original
 
 ; hpRemote: Remote process handle
     if(!hpRemote) {
-        tooltip, % "Autohotkey: Cannot OpenProcess(pid=" . pid_target . ")"
+        ToolTip("Autohotkey: Cannot OpenProcess(pid=" . pid_target . ")")
         return
     }
 ; Allocate memory for the TBBUTTON structure in the target process's address space
 
     remote_buffer := DllCall( "VirtualAllocEx" 
-                        ; , "UInt", hpRemote     ; == original
-                        , "Ptr", hpRemote
-                        ; , "Ptr", hProcess      ; ==> from HznButton()
-                        , "Ptr", 0              ; LPVOID lpAddress ("uint" tolerable)
+                        , "Ptr", hpRemote                        ; , "UInt", hpRemote     ; == original
+                        , "Ptr", 0                        ; , "Ptr", hProcess      ; ==> from HznButton()
                         ; , "Ptr", 0 ; ==> from HznButton() => same
-                        ; , "UInt", 0x1000        ; size to allocate, 4KB
-                        , "UPtr", 16            ; ==> from HznButton()           
-                        , "UInt", 0x1000        ; MEM_COMMIT
+                        , "UPtr", 16                        , "UInt", 0x1000                        ; , "UInt", 0x1000        ; size to allocate, 4KB
                         ; , "UInt", 0x1000       ; ==> from HznButton() => same
-                        ; , "UInt", 0x4)          ; PAGE_READWRITE
-                        , "UInt", 0x04         ; ==> from HznButton() => same?
-                        , "Ptr")               ; ==> from HznButton()
+                        , "UInt", 0x04                        , "Ptr")                        ; , "UInt", 0x4)          ; PAGE_READWRITE
 
     x1 :="", x2 :="", y1 :="", y2 :=""
 
@@ -392,12 +378,12 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 
 
     Msg := TB_BUTTONCOUNT, wParam := 0, lParam := 0, control := ""
-    SendMessage,% Msg,% wParam,% lParam,% control, % "ahk_id " ctrlhwnd
+    ErrorLevel := SendMessage(Msg, wParam, lParam, control, "ahk_id " ctrlhwnd)
     buttons := ErrorLevel
-    OutputDebug, % "buttons: " . buttons . "`n" ;tooltip, buttons=%buttons%	 ; OK
+    OutputDebug("buttons: " . buttons . "`n") ;tooltip, buttons=%buttons%	 ; OK
 	
-    VarSetCapacity( rect, 16, 0 ) 
-    VarSetCapacity( BtnStruct, 32, 0 ) ; Winapi TBBUTTON struct(32 bytes on x64, 20 bytes on x86)
+    rect := Buffer(16, 0)  ; V1toV2: if 'rect' is a UTF-16 string, use 'VarSetStrCapacity(&rect, 16)'
+    BtnStruct := Buffer(32, 0) ; Winapi TBBUTTON struct(32 bytes on x64, 20 bytes on x86) ; V1toV2: if 'BtnStruct' is a UTF-16 string, use 'VarSetStrCapacity(&BtnStruct, 32)'
 /*
     typedef struct _TBBUTTON {
         int       iBitmap; 
@@ -414,44 +400,44 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
     } TBBUTTON, NEAR* PTBBUTTON, FAR* LPTBBUTTON; 
 */
 	
-	Loop,% buttons
+	Loop buttons
 	{
 		; Try to get button text. Two steps: 
 		; 1. get command-id from button-index,
 		; 2. get button text from command-id
-		SendMessage, TB_GETBUTTON, % A_Index-1, remote_buffer, , % "ahk_id " ctrlhwnd
+		ErrorLevel := SendMessage(TB_GETBUTTON, A_Index-1, remote_buffer, , "ahk_id " ctrlhwnd)
 		ReadRemoteBuffer(hpRemote, remote_buffer, BtnStruct, 32)
-		OutputDebug, % "BtnStruct: " BtnStruct "`n"
+		OutputDebug("BtnStruct: " BtnStruct "`n")
 		idButton := NumGet(BtnStruct, 4, "IntP")
-        OutputDebug, % "idButton: " . idButton . "`n"	
+        OutputDebug("idButton: " . idButton . "`n")
 		
-		SendMessage, TB_COMMANDTOINDEX,% idButton,0,, % "ahk_id " ctrlhwnd ; hope that 4KB is enough ; just a test
+		ErrorLevel := SendMessage(TB_COMMANDTOINDEX, idButton, 0, , "ahk_id " ctrlhwnd) ; hope that 4KB is enough ; just a test
 		btnvar1 := ErrorLevel
-		OutputDebug, % "Cmd2Indx: " . btnvar1 . "`n"
+		OutputDebug("Cmd2Indx: " . btnvar1 . "`n")
 
-		SendMessage, TB_GETBUTTONINFOW,% btnvar1,remote_buffer,, % "ahk_id " ctrlhwnd ; hope that 4KB is enough ; just a test
+		ErrorLevel := SendMessage(TB_GETBUTTONINFOW, btnvar1, remote_buffer, , "ahk_id " ctrlhwnd) ; hope that 4KB is enough ; just a test
 		; SendMessage,% TBN_GETBUTTONINFO,% btnvar1,remote_buffer,, % "ahk_id " ctrlhwnd ; hope that 4KB is enough ; just a test
 		btnvar2 := % " Info:" . ErrorLevel
 
-		SendMessage, % TB_GETSTATE, % idButton, 0, , % "ahk_id " ctrlhwnd ; hope that 4KB is enough ; just a test
+		ErrorLevel := SendMessage(TB_GETSTATE, idButton, 0, , "ahk_id " ctrlhwnd) ; hope that 4KB is enough ; just a test
 		btnstate := ErrorLevel
-        OutputDebug, % "btnstate: " . btnstate . "`n"
+        OutputDebug("btnstate: " . btnstate . "`n")
 
-		SendMessage,% TB_GETBUTTONTEXT, % idButton, remote_buffer, ,% "ahk_id " ctrlhwnd ; hope that 4KB is enough
+		ErrorLevel := SendMessage(TB_GETBUTTONTEXT, idButton, remote_buffer, , "ahk_id " ctrlhwnd) ; hope that 4KB is enough
 		btntextcharsW := ErrorLevel
-        OutputDebug, % "btntextcharsW: " . btntextcharsW . "`n"
+        OutputDebug("btntextcharsW: " . btntextcharsW . "`n")
     
 		; if (btntextcharsW>0){
 		if (btntextcharsW){
-			btntextbytes := A_IsUnicode ? btntextcharsW*2 : btntextcharsW
-			VarSetCapacity(BtnTextBuf, btntextbytes+2, 0) ; +2 is for trailing-NUL
+			btntextbytes := 1 ? btntextcharsW*2 : btntextcharsW
+			BtnTextBuf := Buffer(btntextbytes+2, 0) ; +2 is for trailing-NUL ; V1toV2: if 'BtnTextBuf' is a UTF-16 string, use 'VarSetStrCapacity(&BtnTextBuf, btntextbytes+2)'
 			ReadRemoteBuffer(hpRemote, remote_buffer, BtnTextBuf, btntextbytes)
 			bTxtW := StrGet(BtnTextBuf,,"UTF-16")
-            OutputDebug, % "bTxtW: " . bTxtW . "`n"
+            OutputDebug("bTxtW: " . bTxtW . "`n")
 		} else {
 			bTxtW := ""
 		}
-        OutputDebug, % "bTxtW: " . bTxtW . "`n"
+        OutputDebug("bTxtW: " . bTxtW . "`n")
     
     /*
 
@@ -472,7 +458,7 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 		
     ;FileAppend, % A_Index . ":" . idButton . "(" . btntextchars . ")" . BtnText . "`n", _emeditor_toolbar_buttons.txt ; debug
 		
-		SendMessage,% TB_GETITEMRECT,% A_Index-1, remote_buffer, ,% "ahk_id " ctrlhwnd
+		ErrorLevel := SendMessage(TB_GETITEMRECT, A_Index-1, remote_buffer, , "ahk_id " ctrlhwnd)
 		
 		ReadRemoteBuffer(hpRemote, remote_buffer, rect, 32)
 		oldx1:=x1
@@ -481,10 +467,10 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
 		x1 := NumGet(rect, 0, "Int") 
 		x2 := NumGet(rect, 8, "Int") 
 		y1 := NumGet(rect, 4, "Int") 
-		y2 := NumGet(rect, 12,"Int")
+		y2 := NumGet(rect, 12, "Int")
 		
-		FileAppend, % A_Index . ":" . idButton . "(" . btntextcharsW . ")" . " bTxtW: " . bTxtW . " State: " btnstate . btnvar1 . btnvar2 . " X1: " x1 . " X2: " x2 . " Y1: " y1 . " Y2: " y2 . " ErrorLevel: " ErrorLevel . "`n", _emeditor_toolbar_buttons.txt  ; debug
-		OutputDebug % A_Index . ":" . idButton . "(" . btntextcharsW . ")" . " bTxtW: " . bTxtW . " State: " btnstate . " 1:"btnvar1 . " 2:"btnvar2 . " X1: " x1 . " X2: " x2 . " Y1: " y1 . " Y2: " y2 . " ErrorLevel: " ErrorLevel . "`n"                                 ; debug
+		FileAppend(A_Index . ":" . idButton . "(" . btntextcharsW . ")" . " bTxtW: " . bTxtW . " State: " btnstate . btnvar1 . btnvar2 . " X1: " x1 . " X2: " x2 . " Y1: " y1 . " Y2: " y2 . " ErrorLevel: " ErrorLevel . "`n", "_emeditor_toolbar_buttons.txt")  ; debug
+		OutputDebug(A_Index . ":" . idButton . "(" . btntextcharsW . ")" . " bTxtW: " . bTxtW . " State: " btnstate . " 1:"btnvar1 . " 2:"btnvar2 . " X1: " x1 . " X2: " x2 . " Y1: " y1 . " Y2: " y2 . " ErrorLevel: " ErrorLevel . "`n")                                 ; debug
     
 		;MouseMove % ctrlx + (x2+x1//2), ctrly + (y2+y1//2)
 		;if(is_apply_scale) {
@@ -509,28 +495,19 @@ EnumToolbarButtons(ctrlhwnd) ;, is_apply_scale:=false)
         arbtn := ({"x":x1, "y":y1, "w":x2-x1, "h":y2-y1, "cmd":idButton, "text":bTxtW})
         For key, value in arbtn
             {
-                FileAppend, % "Key :" . key . " = " . " Value: " . value . "`n", _arbtn.txt
+                FileAppend("Key :" . key . " = " . " Value: " . value . "`n", "_arbtn.txt")
             }
 	}
-	result := DllCall("VirtualFreeEx"
-                    , "UInt", hpRemote
-                    , "UInt", remote_buffer
-                    , "UInt", 0
-                    , "UInt", 0x8000 )     ; MEM_RELEASE 
-	result := DllCall( "CloseHandle", "UInt", hpRemote )
+	result := DllCall("VirtualFreeEx", "UInt", hpRemote, "UInt", remote_buffer, "UInt", 0, "UInt", 0x8000)
+	result := DllCall("CloseHandle", "UInt", hpRemote)
 	return arbtn
 }
 
-ReadRemoteBuffer(hpRemote, RemoteBuffer, ByRef LocalVar, bytes) {
-	result := DllCall("ReadProcessMemory"
-                    , "Ptr", hpRemote
-                    , "Ptr", RemoteBuffer
-                    , "Ptr", &LocalVar
-                    , "UInt", bytes
-                    , "UInt", 0 ) 
+ReadRemoteBuffer(hpRemote, RemoteBuffer, &LocalVar, bytes) {
+	result := DllCall("ReadProcessMemory", "Ptr", hpRemote, "Ptr", RemoteBuffer, "Ptr", LocalVar, "UInt", bytes, "UInt", 0) 
 }
 
-#IfWinActive
+#HotIf
 
 ;=======================================================================================
 ;
@@ -649,10 +626,14 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     Add(Options := "Enabled", Buttons*)
     {
-        If (!Buttons.Length())
+        If (!Buttons.Length)
         {
             Struct := this.BtnSep(TBBUTTON, Options), this.DefaultBtnInfo.Push(Struct)
-            SendMessage, this.TB_ADDBUTTONS, 1, &TBBUTTON,, % "ahk_id " this.tbHwnd
+            if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+               ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, TBBUTTON, , "ahk_id " this.tbHwnd)
+            } else{
+               ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+            }
             If (ErrorLevel = "FAIL")
                 return false
         }
@@ -673,7 +654,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     AutoSize()
     {
-        PostMessage, this.TB_AUTOSIZE, 0, 0,, % "ahk_id " this.tbHwnd
+        PostMessage(this.TB_AUTOSIZE, 0, 0, , "ahk_id " this.tbHwnd)
         return ErrorLevel ? false : true
     }
 ;=======================================================================================
@@ -683,7 +664,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     Customize()
     {
-        SendMessage, this.TB_CUSTOMIZE, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_CUSTOMIZE, 0, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -697,11 +678,11 @@ Class Toolbar extends Toolbar.Private
     {
         If (!Button)
         {
-            Loop, % this.GetCount()
+            Loop this.GetCount()
                 this.Delete(1)
         }
         Else
-            SendMessage, this.TB_DELETEBUTTON, Button-1, 0,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_DELETEBUTTON, Button-1, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -719,16 +700,11 @@ Class Toolbar extends Toolbar.Private
     Export(ArrayOut := false, HidMark := "-")
     {
         BtnArray := [], IncLabels := ":"
-        Loop, % this.GetCount()
+        Loop this.GetCount()
         {
-            this.GetButton(A_Index, ID, Text, State, Style, Icon)
-        ,   Label := this.Labels[ID], IncLabels .= Label ":"
-        ,   cString := (Label ? (Label (Text ? "=" Text : "")
-                    .    ":" Icon (Style ? "(" Style ")" : "")) : "") ", "
-        ,   BtnString .= cString
+            this.GetButton(A_Index, ID, Text, State, Style, Icon)        ,   Label := this.Labels[ID], IncLabels .= Label ":"        ,   cString := (Label ? (Label (Text ? "=" Text : "")                    .    ":" Icon (Style ? "(" Style ")" : "")) : "") ", "        ,   BtnString .= cString
             If (ArrayOut)
-                BtnArray.Push({Icon: Icon-1, ID: ID, State: State
-                                , Style: Style, Text: Text, Label: Label})
+                BtnArray.Push({Icon: Icon-1, ID: ID, State: State                                , Style: Style, Text: Text, Label: Label})
         }
         For i, Button in this.DefaultBtnInfo
         {
@@ -736,8 +712,7 @@ Class Toolbar extends Toolbar.Private
             {
                 If (!Label)
                     continue
-                oString := Label (Button.Text ? "=" Button.Text : "")
-                        .    ":" Button.Icon+1 (Button.Style ? "(" Button.Style ")" : "")
+                oString := Label (Button.Text ? "=" Button.Text : "")                        .    ":" Button.Icon+1 (Button.Style ? "(" Button.Style ")" : "")
                 BtnString .= HidMark oString ", "
             }
         }
@@ -756,20 +731,19 @@ Class Toolbar extends Toolbar.Private
 ;        ExStyle:        OutputVar to store the current extended styles numeric value.
 ;    Return:             TRUE if successful, FALSE if there was a problem.
 ;=======================================================================================
-    Get(ByRef HotItem := "", ByRef TextRows := "", ByRef Rows := ""
-    ,   ByRef BtnWidth := "", ByRef BtnHeight := "", ByRef Style := "", ByRef ExStyle := "")
+    Get(&HotItem := "", &TextRows := "", &Rows := ""    ,   &BtnWidth := "", &BtnHeight := "", &Style := "", &ExStyle := "")
     {
-        SendMessage, this.TB_GETHOTITEM, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETHOTITEM, 0, 0, , "ahk_id " this.tbHwnd)
             HotItem := (ErrorLevel = 4294967295) ? 0 : ErrorLevel+1
-        SendMessage, this.TB_GETTEXTROWS, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETTEXTROWS, 0, 0, , "ahk_id " this.tbHwnd)
             TextRows := ErrorLevel
-        SendMessage, this.TB_GETROWS, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETROWS, 0, 0, , "ahk_id " this.tbHwnd)
             Rows := ErrorLevel
-        SendMessage, this.TB_GETBUTTONSIZE, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETBUTTONSIZE, 0, 0, , "ahk_id " this.tbHwnd)
             this.MakeShort(ErrorLevel, BtnWidth, BtnHeight)
-        SendMessage, this.TB_GETSTYLE, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETSTYLE, 0, 0, , "ahk_id " this.tbHwnd)
             Style := ErrorLevel
-        SendMessage, this.TB_GETEXTENDEDSTYLE, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_GETEXTENDEDSTYLE, 0, 0, , "ahk_id " this.tbHwnd)
             ExStyle := ErrorLevel
         return (ErrorLevel = "FAIL") ? false : true
     }
@@ -787,17 +761,22 @@ Class Toolbar extends Toolbar.Private
 ;        Index:          OutputVar to store the button's text string index.
 ;    Return:             TRUE if successful, FALSE if there was a problem.
 ;=======================================================================================
-    GetButton(Button, ByRef ID := "", ByRef Text := "", ByRef State := "", ByRef Style := ""
-    ,   ByRef Icon := "", ByRef Label := "", ByRef Index := "")
+    GetButton(Button, &ID := "", &Text := "", &State := "", &Style := ""    ,   &Icon := "", &Label := "", &Index := "")
     {
-        VarSetCapacity(BtnVar, 8 + (A_PtrSize * 3), 0)
-        SendMessage, this.TB_GETBUTTON, Button-1, &BtnVar,, % "ahk_id " this.tbHwnd
-        ID := NumGet(&BtnVar, 4, "Int"), Icon := NumGet(&BtnVar, 0, "Int")+1
-    ,   State := NumGet(&BtnVar, 8, "Char"), Style := NumGet(&BtnVar, 9, "Char")
-    ,   Index := NumGet(&BtnVar, 8 + (A_PtrSize * 2), "Int"), Label := this.Labels[ID]
-        SendMessage, this.TB_GETBUTTONTEXT, ID, 0,, % "ahk_id " this.tbHwnd
-        VarSetCapacity(Buffer, ErrorLevel * (A_IsUnicode ? 2 : 1), 0)
-        SendMessage, this.TB_GETBUTTONTEXT, ID, &Buffer,, % "ahk_id " this.tbHwnd
+        BtnVar := Buffer(8 + (A_PtrSize * 3), 0) ; V1toV2: if 'BtnVar' is a UTF-16 string, use 'VarSetStrCapacity(&BtnVar, 8 + (A_PtrSize * 3))'
+        if (type(BtnVar)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+           ErrorLevel := SendMessage(this.TB_GETBUTTON, Button-1, BtnVar, , "ahk_id " this.tbHwnd)
+        } else{
+           ErrorLevel := SendMessage(this.TB_GETBUTTON, Button-1, StrPtr(BtnVar), , "ahk_id " this.tbHwnd)
+        }
+        ID := NumGet(&BtnVar, 4, "Int"), Icon := NumGet(&BtnVar, 0, "Int")+1    ,   State := NumGet(&BtnVar, 8, "Char"), Style := NumGet(&BtnVar, 9, "Char")    ,   Index := NumGet(&BtnVar, 8 + (A_PtrSize * 2), "Int"), Label := this.Labels[ID]
+        ErrorLevel := SendMessage(this.TB_GETBUTTONTEXT, ID, 0, , "ahk_id " this.tbHwnd)
+        Buffer := Buffer(ErrorLevel * (1 ? 2 : 1), 0) ; V1toV2: if 'Buffer' is a UTF-16 string, use 'VarSetStrCapacity(&Buffer, ErrorLevel * (A_IsUnicode ? 2 : 1))'
+        if (type(Buffer)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+           ErrorLevel := SendMessage(this.TB_GETBUTTONTEXT, ID, Buffer, , "ahk_id " this.tbHwnd)
+        } else{
+           ErrorLevel := SendMessage(this.TB_GETBUTTONTEXT, ID, StrPtr(Buffer), , "ahk_id " this.tbHwnd)
+        }
         Text := StrGet(&Buffer)
         return (ErrorLevel = "FAIL") ? false : true
         ; Alternative way to retrieve the button state.
@@ -816,12 +795,15 @@ Class Toolbar extends Toolbar.Private
 ;        OutH:           OutputVar to store the button's height.
 ;    Return:             TRUE if successful, FALSE if there was a problem.
 ;=======================================================================================
-    GetButtonPos(Button, ByRef OutX := "", ByRef OutY := "", ByRef OutW := "", ByRef OutH := "")
+    GetButtonPos(Button, &OutX := "", &OutY := "", &OutW := "", &OutH := "")
     {
-        this.GetButton(Button, BtnID), VarSetCapacity(RECT, 16, 0)
-        SendMessage, this.TB_GETRECT, BtnID, &RECT,, % "ahk_id " this.tbHwnd
-        OutX := NumGet(&RECT, 0, "Int"), OutY := NumGet(&RECT, 4, "Int")
-    ,   OutW := NumGet(&RECT, 8, "Int") - OutX, OutH := NumGet(&RECT, 12, "Int") - OutY
+        this.GetButton(Button, BtnID), RECT := Buffer(16, 0) ; V1toV2: if 'RECT' is a UTF-16 string, use 'VarSetStrCapacity(&RECT, 16)'
+        if (type(RECT)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+           ErrorLevel := SendMessage(this.TB_GETRECT, BtnID, RECT, , "ahk_id " this.tbHwnd)
+        } else{
+           ErrorLevel := SendMessage(this.TB_GETRECT, BtnID, StrPtr(RECT), , "ahk_id " this.tbHwnd)
+        }
+        OutX := NumGet(&RECT, 0, "Int"), OutY := NumGet(&RECT, 4, "Int")    ,   OutW := NumGet(&RECT, 8, "Int") - OutX, OutH := NumGet(&RECT, 12, "Int") - OutY
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -837,7 +819,7 @@ Class Toolbar extends Toolbar.Private
         this.GetButton(Button, BtnID)
         If (this[ "TB_ISBUTTON" StateQuerry] )
             Msg := this[ "TB_ISBUTTON" StateQuerry ]
-        SendMessage, Msg, BtnID, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(Msg, BtnID, 0, , "ahk_id " this.tbHwnd)
         return ErrorLevel ? true : false
     }
 ;=======================================================================================
@@ -847,7 +829,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     GetCount()
     {
-        SendMessage, this.TB_BUTTONCOUNT, 0, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_BUTTONCOUNT, 0, 0, , "ahk_id " this.tbHwnd)
         return ErrorLevel
     }
 ;=======================================================================================
@@ -862,14 +844,17 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     GetHiddenButtons()
     {
-        ControlGetPos,,, tbWidth,,, % "ahk_id " this.tbHwnd
-        VarSetCapacity(RECT, 16, 0), HiddenButtons := []
-        Loop, % this.GetCount()
+        ControlGetPos(, , &tbWidth, , , "ahk_id " this.tbHwnd)
+        RECT := Buffer(16, 0), HiddenButtons := [] ; V1toV2: if 'RECT' is a UTF-16 string, use 'VarSetStrCapacity(&RECT, 16)'
+        Loop this.GetCount()
         {
-            SendMessage, this.TB_GETITEMRECT, A_Index-1, &RECT,, % "ahk_id " this.tbHwnd
+            if (type(RECT)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+               ErrorLevel := SendMessage(this.TB_GETITEMRECT, A_Index-1, RECT, , "ahk_id " this.tbHwnd)
+            } else{
+               ErrorLevel := SendMessage(this.TB_GETITEMRECT, A_Index-1, StrPtr(RECT), , "ahk_id " this.tbHwnd)
+            }
             If (NumGet(&RECT, 8, "Int") > tbWidth)
-                this.GetButton(A_Index, ID, Text, "", "", Icon)
-            ,   HiddenButtons.Push({ID: ID, Text: Text, Label: this.Labels[ID], Icon: Icon})
+                this.GetButton(A_Index, ID, Text, "", "", Icon)            ,   HiddenButtons.Push({ID: ID, Text: Text, Label: this.Labels[ID], Icon: Icon})
         }
         return HiddenButtons
     }
@@ -885,10 +870,14 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     Insert(Position, Options := "Enabled", Buttons*)
     {
-        If (!Buttons.Length())
+        If (!Buttons.Length)
         {
             this.BtnSep(TBBUTTON, Options)
-            SendMessage, this.TB_INSERTBUTTON, Position-1, &TBBUTTON,, % "ahk_id " this.tbHwnd
+            if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+               ErrorLevel := SendMessage(this.TB_INSERTBUTTON, Position-1, TBBUTTON, , "ahk_id " this.tbHwnd)
+            } else{
+               ErrorLevel := SendMessage(this.TB_INSERTBUTTON, Position-1, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+            }
             If (ErrorLevel = "FAIL")
                 return false
         }
@@ -914,7 +903,7 @@ Class Toolbar extends Toolbar.Private
         {
             If (L = Label)
             {
-                SendMessage, this.TB_COMMANDTOINDEX, ID, 0,, % "ahk_id " this.tbHwnd
+                ErrorLevel := SendMessage(this.TB_COMMANDTOINDEX, ID, 0, , "ahk_id " this.tbHwnd)
                 return ErrorLevel+1
             }
         }
@@ -932,11 +921,10 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     ModifyButton(Button, State, Set := true)
     {
-        If State not in CHECK,ENABLE,HIDE,MARK,PRESS
+        if !(State ~= "^(?i:CHECK|ENABLE|HIDE|MARK|PRESS)$")
             return false
-        Message := this[ "TB_" State "BUTTON"]
-    ,   this.GetButton(Button, BtnID)
-        SendMessage, Message, BtnID, Set,, % "ahk_id " this.tbHwnd
+        Message := this[ "TB_" State "BUTTON"]    ,   this.GetButton(Button, BtnID)
+        ErrorLevel := SendMessage(Message, BtnID, Set, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -960,11 +948,11 @@ Class Toolbar extends Toolbar.Private
         }
         If (Property = "State") || (Property = "Style")
         {
-            If Value is Integer
+            if isInteger(Value)
                 Value := Value
             Else
             {
-                Loop, Parse, Value, %A_Space%%A_Tab%
+                Loop Parse, Value, A_Space "" A_Tab
                 {
                     If (this[ "TBSTATE_" A_LoopField ])
                         tbState += this[ "TBSTATE_" A_LoopField ]
@@ -976,9 +964,12 @@ Class Toolbar extends Toolbar.Private
         }
         If (Property = "Command")
             this.GetButton(Button, "", "", "", "", "", Label), this.Labels[Value] := Label
-        this.DefineBtnInfoStruct(TBBUTTONINFO, Property, Value)
-    ,   this.GetButton(Button, BtnID)
-        SendMessage, this.TB_SETBUTTONINFO, BtnID, &TBBUTTONINFO,, % "ahk_id " this.tbHwnd
+        this.DefineBtnInfoStruct(TBBUTTONINFO, Property, Value)    ,   this.GetButton(Button, BtnID)
+        if (type(TBBUTTONINFO)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+           ErrorLevel := SendMessage(this.TB_SETBUTTONINFO, BtnID, TBBUTTONINFO, , "ahk_id " this.tbHwnd)
+        } else{
+           ErrorLevel := SendMessage(this.TB_SETBUTTONINFO, BtnID, StrPtr(TBBUTTONINFO), , "ahk_id " this.tbHwnd)
+        }
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -991,7 +982,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     MoveButton(Button, Target)
     {
-        SendMessage, this.TB_MOVEBUTTON, Button-1, Target-1,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_MOVEBUTTON, Button-1, Target-1, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1008,17 +999,16 @@ Class Toolbar extends Toolbar.Private
 ;                            You can pass any number of parameters.
 ;    Return:             TRUE if target label or function exists, or FALSE otherwise.
 ;=======================================================================================
-    OnMessage(CommandID, FuncParams*)
+    OnMessage(CommandID, %FuncParams*%)
     {
         If (IsLabel(this.Labels[CommandID]))
         {
-            GoSub, % this.Labels[CommandID]
+            % this.Labels[CommandID]()
             return true
         }
 		Else If (IsFunc(this.Labels[CommandID]))
 		{
-			BtnFunc := this.Labels[CommandID]
-		,	%BtnFunc%(FuncParams*)
+			BtnFunc := this.Labels[CommandID]		,	%BtnFunc%(FuncParams*)
 			return true
 		}
         Else
@@ -1043,18 +1033,20 @@ Class Toolbar extends Toolbar.Private
 ;    Return:             The required return value for the function monitoring
 ;                            the the WM_NOTIFY message.
 ;=======================================================================================
-    OnNotify(ByRef Param, ByRef MenuXPos := "", ByRef MenuYPos := "", ByRef BtnLabel := "", ByRef ID := ""
-    ,   AllowCustom := true, AllowReset := true, HideHelp := true)
+    OnNotify(&Param, &MenuXPos := "", &MenuYPos := "", &BtnLabel := "", &ID := ""    ,   AllowCustom := true, AllowReset := true, HideHelp := true)
     {
         nCode  := NumGet(Param + (A_PtrSize * 2), 0, "Int"), tbHwnd := NumGet(Param + 0, 0, "UPtr")
         If (tbHwnd != this.tbHwnd)
             return ""
         If (nCode = this.TBN_DROPDOWN)
         {
-            ID  := NumGet(Param + (A_PtrSize * 3), 0, "Int"), BtnLabel := this.Labels[ID]
-        ,   VarSetCapacity(RECT, 16, 0)
-            SendMessage, this.TB_GETRECT, ID, &RECT,, % "ahk_id " this.tbHwnd
-            ControlGetPos, TBX, TBY,,,, % "ahk_id " this.tbHwnd
+            ID  := NumGet(Param + (A_PtrSize * 3), 0, "Int"), BtnLabel := this.Labels[ID]        ,   RECT := Buffer(16, 0) ; V1toV2: if 'RECT' is a UTF-16 string, use 'VarSetStrCapacity(&RECT, 16)'
+            if (type(RECT)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+               ErrorLevel := SendMessage(this.TB_GETRECT, ID, RECT, , "ahk_id " this.tbHwnd)
+            } else{
+               ErrorLevel := SendMessage(this.TB_GETRECT, ID, StrPtr(RECT), , "ahk_id " this.tbHwnd)
+            }
+            ControlGetPos(&TBX, &TBY, , , , "ahk_id " this.tbHwnd)
             MenuXPos := TBX + NumGet(&RECT, 0, "Int"), MenuYPos := TBY + NumGet(&RECT, 12, "Int")
             return false
         }
@@ -1067,30 +1059,26 @@ Class Toolbar extends Toolbar.Private
         If (nCode = this.TBN_GETBUTTONINFO)
         {
             iItem := NumGet(Param + (A_PtrSize * 3), 0, "Int")
-            If (iItem = this.DefaultBtnInfo.Length())
+            If (iItem = this.DefaultBtnInfo.Length)
                 return false
             For each, Member in this.DefaultBtnInfo[iItem+1]
                 %each% := Member
             If (Text != "")
             {
-                VarSetCapacity(BTNSTR, (StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))
-            ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2)
-                SendMessage, this.TB_ADDSTRING, 0, &BTNSTR,, % "ahk_id " this.tbHwnd
-                Index := ErrorLevel, this.DefaultBtnInfo[iItem+1]["Index"] := Index
-            ,   this.DefaultBtnInfo[iItem+1]["Text"] := Text
+                VarSetStrCapacity(&BTNSTR, (StrPut(Text) * (1 ? 2 : 1), 0))            ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2) ; V1toV2: if 'BTNSTR' is NOT a UTF-16 string, use 'BTNSTR := Buffer((StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))'
+                if (type(BTNSTR)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, BTNSTR, , "ahk_id " this.tbHwnd)
+                } else{
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, StrPtr(BTNSTR), , "ahk_id " this.tbHwnd)
+                }
+                Index := ErrorLevel, this.DefaultBtnInfo[iItem+1]["Index"] := Index            ,   this.DefaultBtnInfo[iItem+1]["Text"] := Text
             }
-            NumPut(Icon, Param + (A_PtrSize * 4), 0, "Int") ; iBitmap
-        ,   NumPut(ID, Param + (A_PtrSize * 4), 4, "Int") ; idCommand
-        ,   NumPut(State, Param + (A_PtrSize * 4), 8, "Char") ; tbState
-        ,   NumPut(Style, Param + (A_PtrSize * 4), 9, "Char") ; tbStyle
-        ,   NumPut(Index, Param + (A_PtrSize * 4), 8 + (A_PtrSize * 2), "Int") ; iString
+            NumPut("Int", Icon, Param + (A_PtrSize * 4), 0)        ,   NumPut("Int", ID, Param + (A_PtrSize * 4), 4)        ,   NumPut("Char", State, Param + (A_PtrSize * 4), 8)        ,   NumPut("Char", Style, Param + (A_PtrSize * 4), 9)        ,   NumPut("Int", Index, Param + (A_PtrSize * 4), 8 + (A_PtrSize * 2)) ; iBitmap
             return true
         }
         If (nCode = this.TBN_TOOLBARCHANGE)
         {
-            CurrentButtons := this.Export(true)
-        ,   this.Presets.Load(CurrentButtons)
-        ,   CurrentButtons := ""
+            CurrentButtons := this.Export(true)        ,   this.Presets.Load(CurrentButtons)        ,   CurrentButtons := ""
         }
         If (nCode = this.TBN_RESET)
         {
@@ -1113,9 +1101,8 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     Reset()
     {
-        BtnsArray := IsObject(CustomArray) ? CustomArray : this.DefaultBtnInfo
-    ,   this.Get("", "", Rows)
-        Loop, % this.GetCount()
+        BtnsArray := IsObject(CustomArray) ? CustomArray : this.DefaultBtnInfo    ,   this.Get("", "", Rows)
+        Loop this.GetCount()
             this.Delete(1)
         For each, Button in BtnsArray
         {
@@ -1125,18 +1112,20 @@ Class Toolbar extends Toolbar.Private
                 State := 0x24
             If (Text != "")
             {
-                VarSetCapacity(BTNSTR, (StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))
-            ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2)
-                SendMessage, this.TB_ADDSTRING, 0, &BTNSTR,, % "ahk_id " this.tbHwnd
+                VarSetStrCapacity(&BTNSTR, (StrPut(Text) * (1 ? 2 : 1), 0))            ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2) ; V1toV2: if 'BTNSTR' is NOT a UTF-16 string, use 'BTNSTR := Buffer((StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))'
+                if (type(BTNSTR)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, BTNSTR, , "ahk_id " this.tbHwnd)
+                } else{
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, StrPtr(BTNSTR), , "ahk_id " this.tbHwnd)
+                }
                 Index := ErrorLevel
             }
-            VarSetCapacity(TBBUTTON, 8 + (A_PtrSize * 3), 0)
-        ,   NumPut(Icon, TBBUTTON, 0, "Int")
-        ,   NumPut(ID, TBBUTTON, 4, "Int")
-        ,   NumPut(State, TBBUTTON, 8, "Char")
-        ,   NumPut(Style, TBBUTTON, 9, "Char")
-        ,   NumPut(Index, TBBUTTON, 8 + (A_PtrSize * 2), "Int")
-            SendMessage, this.TB_ADDBUTTONS, 1, &TBBUTTON,, % "ahk_id " this.tbHwnd
+            TBBUTTON := Buffer(8 + (A_PtrSize * 3), 0)        ,   NumPut("Int", Icon, TBBUTTON, 0)        ,   NumPut("Int", ID, TBBUTTON, 4)        ,   NumPut("Char", State, TBBUTTON, 8)        ,   NumPut("Char", Style, TBBUTTON, 9)        ,   NumPut("Int", Index, TBBUTTON, 8 + (A_PtrSize * 2)) ; V1toV2: if 'TBBUTTON' is a UTF-16 string, use 'VarSetStrCapacity(&TBBUTTON, 8 + (A_PtrSize * 3))'
+            if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+               ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, TBBUTTON, , "ahk_id " this.tbHwnd)
+            } else{
+               ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+            }
         }
         return (ErrorLevel = "FAIL") ? false : true
     }
@@ -1151,7 +1140,7 @@ Class Toolbar extends Toolbar.Private
     SetButtonSize(W, H)
     {
         Long := this.MakeLong(W, H)
-        SendMessage, this.TB_SETBUTTONSIZE, 0, Long,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETBUTTONSIZE, 0, Long, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1166,9 +1155,8 @@ Class Toolbar extends Toolbar.Private
     SetDefault(Options := "Enabled", Buttons*)
     {
         this.DefaultBtnInfo := []
-        If (!Buttons.Length())
-            this.DefaultBtnInfo.Push({Icon: -1, ID: "", State: ""
-                                       , Style: this.BTNS_SEP, Text: "", Label: ""})
+        If (!Buttons.Length)
+            this.DefaultBtnInfo.Push({Icon: -1, ID: "", State: ""                                       , Style: this.BTNS_SEP, Text: "", Label: ""})
         If (Options = "")
             Options := "Enabled"
         For each, Button in Buttons
@@ -1188,17 +1176,17 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetExStyle(Style)
     {
-        If Style is Integer
+        if isInteger(Style)
             tbStyle_Ex_ := Style
         Else
         {
-            Loop, Parse, Style, %A_Space%%A_Tab%
+            Loop Parse, Style, A_Space "" A_Tab
             {
                 If (this[ "TBSTYLE_EX_" A_LoopField ] )
                     tbStyle_Ex_ += this[ "TBSTYLE_EX_" A_LoopField ]
             }
         }
-        SendMessage, this.TB_SETEXTENDEDSTYLE, 0, tbStyle_Ex_,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETEXTENDEDSTYLE, 0, tbStyle_Ex_, , "ahk_id " this.tbHwnd)
     }
 ;=======================================================================================
 ;    Method:             SetHotItem
@@ -1209,7 +1197,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetHotItem(Button)
     {
-        SendMessage, this.TB_SETHOTITEM, Button-1, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETHOTITEM, Button-1, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1224,13 +1212,13 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetImageList(IL_Default, IL_Hot := "", IL_Pressed := "", IL_Disabled := "")
     {
-        SendMessage, this.TB_SETIMAGELIST, 0, IL_Default,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETIMAGELIST, 0, IL_Default, , "ahk_id " this.tbHwnd)
         If (IL_Hot)
-            SendMessage, this.TB_SETHOTIMAGELIST, 0, IL_Hot,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_SETHOTIMAGELIST, 0, IL_Hot, , "ahk_id " this.tbHwnd)
         If (IL_Pressed)
-            SendMessage, this.TB_SETPRESSEDIMAGELIST, 0, IL_Pressed,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_SETPRESSEDIMAGELIST, 0, IL_Pressed, , "ahk_id " this.tbHwnd)
         If (IL_Disabled)
-            SendMessage, this.TB_SETDISABLEDIMAGELIST, 0, IL_Disabled,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_SETDISABLEDIMAGELIST, 0, IL_Disabled, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1242,7 +1230,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetIndent(Value)
     {
-        SendMessage, this.TB_SETINDENT, Value, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETINDENT, Value, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1254,7 +1242,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetListGap(Value)
     {
-        SendMessage, this.TB_SETLISTGAP, Value, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETLISTGAP, Value, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1266,7 +1254,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     SetMaxTextRows(MaxRows := 0)
     {
-        SendMessage, this.TB_SETMAXTEXTROWS, MaxRows, 0,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETMAXTEXTROWS, MaxRows, 0, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1280,7 +1268,7 @@ Class Toolbar extends Toolbar.Private
     SetPadding(X, Y)
     {
         Long := this.MakeLong(X, Y)
-        SendMessage, this.TB_SETPADDING, 0, Long,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETPADDING, 0, Long, , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1297,7 +1285,7 @@ Class Toolbar extends Toolbar.Private
     SetRows(Rows := 0, AddMore := false)
     {
         Long := this.MakeLong(Rows, AddMore)
-        SendMessage, this.TB_SETROWS, Long,,, % "ahk_id " this.tbHwnd
+        ErrorLevel := SendMessage(this.TB_SETROWS, Long, , , "ahk_id " this.tbHwnd)
         return (ErrorLevel = "FAIL") ? false : true
     }
 ;=======================================================================================
@@ -1314,11 +1302,11 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
     ToggleStyle(Style)
     {
-        If Style is Integer
+        if isInteger(Style)
             tbStyle := Style
         Else
         {
-            Loop, Parse, Style, %A_Space%%A_Tab%
+            Loop Parse, Style, A_Space "" A_Tab
             {
                 If (this[ "TBSTYLE_" A_LoopField ] )
                     tbStyle += this[ "TBSTYLE_" A_LoopField ]
@@ -1328,7 +1316,7 @@ Class Toolbar extends Toolbar.Private
         ; SendMessage, this.TB_SETSTYLE, 0, tbStyle,, % "ahk_id " this.tbHwnd
         If (tbStyle != "")
         {
-            WinSet, Style, ^%tbStyle%, % "ahk_id " this.tbHwnd
+            WinSetStyle("^" tbStyle, "ahk_id " this.tbHwnd)
             return true
         }
         Else
@@ -1376,11 +1364,9 @@ Class Toolbar extends Toolbar.Private
             {
                 For each, Member in Button
                     %each% := Member
-                BtnString .= (Label ? (Label (Text ? "=" Text : "")
-                        .    ":" Icon+1 (Style ? "(" Style ")" : "")) : "") ", "
+                BtnString .= (Label ? (Label (Text ? "=" Text : "")                        .    ":" Icon+1 (Style ? "(" Style ")" : "")) : "") ", "
                 If (ArrayOut)
-                    BtnArray.Push({Icon: Icon, ID: ID, State: State
-                                   , Style: Style, Text: Text, Label: Label})
+                    BtnArray.Push({Icon: Icon, ID: ID, State: State                                   , Style: Style, Text: Text, Label: Label})
             }
             return ArrayOut ? BtnArray : RTrim(BtnString, ", ")
         }
@@ -1401,14 +1387,11 @@ Class Toolbar extends Toolbar.Private
                 Options := "Enabled"
             For each, Button in Buttons
             {
-                If (RegExMatch(Button, "^(\W?)(\w+)[=\s]?(.*)?:(\d+)\(?(.*?)?\)?$", Key))
+                If (RegExMatch(Button, "^(\W?)(\w+)[=\s]?(.*)?:(\d+)\(?(.*?)?\)?$", &Key))
                 {
-                    If (Key1)
+                    If (Key[1])
                         continue
-                    idCommand := this.GenerateRandomID()
-                ,   iString := Key3, iBitmap := Key4
-                ,   Struct := this.DefineBtnStruct(TBBUTTON, iBitmap, idCommand, iString, Key5 ? Key5 : Options)
-                ,   Struct.Label := Key2, BtnArray.Push(Struct)
+                    idCommand := this.GenerateRandomID()                ,   iString := Key[3], iBitmap := Key[4]                ,   Struct := this.DefineBtnStruct(TBBUTTON, iBitmap, idCommand, iString, Key[5] ? Key[5] : Options)                ,   Struct.Label := Key[2], BtnArray.Push(Struct)
                 }
                 Else
                     Struct := this.BtnSep(TBBUTTON, Options), BtnArray.Push(Struct)
@@ -1433,11 +1416,11 @@ Class Toolbar extends Toolbar.Private
                 Buttons := this[Slot]
             If (!IsObject(Buttons))
                 return false
-            SendMessage, this.TB_GETROWS, 0, 0,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_GETROWS, 0, 0, , "ahk_id " this.tbHwnd)
                 Rows := ErrorLevel
-            SendMessage, this.TB_BUTTONCOUNT, 0, 0,, % "ahk_id " this.tbHwnd
-            Loop, % ErrorLevel
-                SendMessage, this.TB_DELETEBUTTON, 0, 0,, % "ahk_id " this.tbHwnd
+            ErrorLevel := SendMessage(this.TB_BUTTONCOUNT, 0, 0, , "ahk_id " this.tbHwnd)
+            Loop ErrorLevel
+                ErrorLevel := SendMessage(this.TB_DELETEBUTTON, 0, 0, , "ahk_id " this.tbHwnd)
             For each, Button in Buttons
             {
                 For each, Member in Button
@@ -1446,18 +1429,20 @@ Class Toolbar extends Toolbar.Private
                     State := 0x24
                 If (Text != "")
                 {
-                    VarSetCapacity(BTNSTR, (StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))
-                ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2)
-                    SendMessage, this.TB_ADDSTRING, 0, &BTNSTR,, % "ahk_id " this.tbHwnd
+                    VarSetStrCapacity(&BTNSTR, (StrPut(Text) * (1 ? 2 : 1), 0))                ,   StrPut(Text, &BTNSTR, StrPut(Text) * 2) ; V1toV2: if 'BTNSTR' is NOT a UTF-16 string, use 'BTNSTR := Buffer((StrPut(Text) * (A_IsUnicode ? 2 : 1), 0))'
+                    if (type(BTNSTR)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                       ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, BTNSTR, , "ahk_id " this.tbHwnd)
+                    } else{
+                       ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, StrPtr(BTNSTR), , "ahk_id " this.tbHwnd)
+                    }
                     Index := ErrorLevel
                 }
-                VarSetCapacity(TBBUTTON, 8 + (A_PtrSize * 3), 0)
-            ,   NumPut(Icon, TBBUTTON, 0, "Int")
-            ,   NumPut(ID, TBBUTTON, 4, "Int")
-            ,   NumPut(State, TBBUTTON, 8, "Char")
-            ,   NumPut(Style, TBBUTTON, 9, "Char")
-            ,   NumPut(Index, TBBUTTON, 8 + (A_PtrSize * 2), "Int")
-                SendMessage, this.TB_ADDBUTTONS, 1, &TBBUTTON,, % "ahk_id " this.tbHwnd
+                TBBUTTON := Buffer(8 + (A_PtrSize * 3), 0)            ,   NumPut("Int", Icon, TBBUTTON, 0)            ,   NumPut("Int", ID, TBBUTTON, 4)            ,   NumPut("Char", State, TBBUTTON, 8)            ,   NumPut("Char", Style, TBBUTTON, 9)            ,   NumPut("Int", Index, TBBUTTON, 8 + (A_PtrSize * 2)) ; V1toV2: if 'TBBUTTON' is a UTF-16 string, use 'VarSetStrCapacity(&TBBUTTON, 8 + (A_PtrSize * 3))'
+                if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                   ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, TBBUTTON, , "ahk_id " this.tbHwnd)
+                } else{
+                   ErrorLevel := SendMessage(this.TB_ADDBUTTONS, 1, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+                }
             }
             return (ErrorLevel = "FAIL") ? false : true
         }
@@ -1494,7 +1479,7 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
         ; Messages
         Static TB_ADDBUTTONS            := 0x0414
-        Static TB_ADDSTRING             := A_IsUnicode ? 0x044D : 0x041C
+        Static TB_ADDSTRING             := 1 ? 0x044D : 0x041C
         Static TB_AUTOSIZE              := 0x0421
         Static TB_BUTTONCOUNT           := 0x0418
         Static TB_CHECKBUTTON           := 0x0402
@@ -1504,7 +1489,7 @@ Class Toolbar extends Toolbar.Private
         Static TB_ENABLEBUTTON          := 0x0401
         Static TB_GETBUTTON             := 0x0417
         Static TB_GETBUTTONSIZE         := 0x043A
-        Static TB_GETBUTTONTEXT         := A_IsUnicode ? 0x044B : 0x042D
+        Static TB_GETBUTTONTEXT         := 1 ? 0x044B : 0x042D
         Static TB_GETEXTENDEDSTYLE      := 0x0455
         Static TB_GETHOTITEM            := 0x0447
         Static TB_GETIMAGELIST          := 0x0431
@@ -1517,11 +1502,11 @@ Class Toolbar extends Toolbar.Private
         Static TB_GETROWS               := 0x0428
         Static TB_GETSTATE              := 0x0412
         Static TB_GETSTYLE              := 0x0439
-        Static TB_GETSTRING             := A_IsUnicode ? :0x045B 0x045C
+        Static TB_GETSTRING             := 1 ? "" :0x045B 0x045C
         Static TB_GETTEXTROWS           := 0x043D
         Static TB_HIDEBUTTON            := 0x0404
         Static TB_INDETERMINATE         := 0x0405
-        Static TB_INSERTBUTTON          := A_IsUnicode ? 0x0443 : 0x0415
+        Static TB_INSERTBUTTON          := 1 ? 0x0443 : 0x0415
         Static TB_ISBUTTONCHECKED       := 0x040A
         Static TB_ISBUTTONENABLED       := 0x0409
         Static TB_ISBUTTONHIDDEN        := 0x040C
@@ -1531,7 +1516,7 @@ Class Toolbar extends Toolbar.Private
         Static TB_MARKBUTTON            := 0x0406
         Static TB_MOVEBUTTON            := 0x0452
         Static TB_PRESSBUTTON           := 0x0403
-        Static TB_SETBUTTONINFO         := A_IsUnicode ? 0x0440 : 0x0442
+        Static TB_SETBUTTONINFO         := 1 ? 0x0440 : 0x0442
         Static TB_SETBUTTONSIZE         := 0x041F
         Static TB_SETBUTTONWIDTH        := 0x043B
         Static TB_SETDISABLEDIMAGELIST  := 0x0436
@@ -1610,8 +1595,8 @@ Class Toolbar extends Toolbar.Private
         Static TBN_ENDADJUST       := -704
         Static TBN_ENDDRAG         := -702
         Static TBN_GETBUTTONINFO   := -720 ; A_IsUnicode ? -720 : -700
-        Static TBN_GETDISPINFO     := A_IsUnicode ? -717 : -716
-        Static TBN_GETINFOTIP      := A_IsUnicode ? -719 : -718
+        Static TBN_GETDISPINFO     := 1 ? -717 : -716
+        Static TBN_GETINFOTIP      := 1 ? -719 : -718
         Static TBN_GETOBJECT       := -712
         Static TBN_HOTITEMCHANGE   := -713
         Static TBN_INITCUSTOMIZE   := -723
@@ -1635,16 +1620,12 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
         __New(hToolbar)
         {
-            this.tbHwnd := hToolbar
-        ,   this.DefaultBtnInfo := []
-        ,   this.Presets := {tbHwnd: hToolbar, Base: Toolbar.tbPresets}
+            this.tbHwnd := hToolbar        ,   this.DefaultBtnInfo := []        ,   this.Presets := {tbHwnd: hToolbar, Base: Toolbar.tbPresets}
         }
 ;=======================================================================================
         __Delete()
         {
-            this.RemoveAt(1, this.Length())
-        ,   this.SetCapacity(0)
-        ,   this.base := ""
+            this.RemoveAt(1, this.Length)        ,   this.SetCapacity(0)        ,   this.base := ""
         }
 ;=======================================================================================
 ;    Private Methods
@@ -1654,16 +1635,16 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
         SendMessage(Button, Options, Message := "", Param := "")
         {
-            If (RegExMatch(Button, "^(\W?)(\w+)[=\s]?(.*)?:(\d+)\(?(.*?)?\)?$", Key))
+            If (RegExMatch(Button, "^(\W?)(\w+)[=\s]?(.*)?:(\d+)\(?(.*?)?\)?$", &Key))
             {
-                idCommand := this.GenerateRandomID()
-            ,   iString := Key3, iBitmap := Key4
-            ,   this.Labels[idCommand] := Key2
-            ,   Struct := this.DefineBtnStruct(TBBUTTON, iBitmap, idCommand, iString, Key5 ? Key5 : Options)
-            ,   this.DefaultBtnInfo.Push(Struct)
-                If !(Key1) && (Message)
+                idCommand := this.GenerateRandomID()            ,   iString := Key[3], iBitmap := Key[4]            ,   this.Labels[idCommand] := Key[2]            ,   Struct := this.DefineBtnStruct(TBBUTTON, iBitmap, idCommand, iString, Key[5] ? Key[5] : Options)            ,   this.DefaultBtnInfo.Push(Struct)
+                If !(Key[1]) && (Message)
                 {
-                    SendMessage, Message, Param, &TBBUTTON,, % "ahk_id " this.tbHwnd
+                    if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                       ErrorLevel := SendMessage(Message, Param, TBBUTTON, , "ahk_id " this.tbHwnd)
+                    } else{
+                       ErrorLevel := SendMessage(Message, Param, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+                    }
                     If (ErrorLevel = "FAIL")
                         return false
                 }
@@ -1673,7 +1654,11 @@ Class Toolbar extends Toolbar.Private
                 Struct := this.BtnSep(TBBUTTON, Options), this.DefaultBtnInfo.Push(Struct)
                 If (Message)
                 {
-                    SendMessage, Message, Param, &TBBUTTON,, % "ahk_id " this.tbHwnd
+                    if (type(TBBUTTON)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                       ErrorLevel := SendMessage(Message, Param, TBBUTTON, , "ahk_id " this.tbHwnd)
+                    } else{
+                       ErrorLevel := SendMessage(Message, Param, StrPtr(TBBUTTON), , "ahk_id " this.tbHwnd)
+                    }
                     If (ErrorLevel = "FAIL")
                         return false
                 }
@@ -1685,88 +1670,78 @@ Class Toolbar extends Toolbar.Private
 ;    Description:        Creates a TBBUTTON structure.
 ;    Return:             An array with the button structure values.
 ;=======================================================================================
-        DefineBtnStruct(ByRef BtnVar, iBitmap := 0, idCommand := 0, iString := "", Options := "")
+        DefineBtnStruct(&BtnVar, iBitmap := 0, idCommand := 0, iString := "", Options := "")
         {
-            If Options is Integer
+            if isInteger(Options)
                 tbStyle := Options, tbState := this.TBSTATE_ENABLED
             Else
             {
-                Loop, Parse, Options, %A_Space%%A_Tab%
+                Loop Parse, Options, A_Space "" A_Tab
                 {
                     If (this[ "TBSTATE_" A_LoopField ])
                         tbState += this[ "TBSTATE_" A_LoopField ]
                     Else If (this[ "BTNS_" A_LoopField ] )
                         tbStyle += this[ "BTNS_" A_LoopField ]
-                    Else If (RegExMatch(A_LoopField, "i)W(\d+)-(\d+)", MW))
+                    Else If (RegExMatch(A_LoopField, "i)W(\d+)-(\d+)", &MW))
                     {
-                        Long := this.MakeLong(MW1, MW2)
-                        SendMessage, this.TB_SETBUTTONWIDTH, 0, Long,, % "ahk_id " this.tbHwnd
+                        Long := this.MakeLong(MW[1], MW[2])
+                        ErrorLevel := SendMessage(this.TB_SETBUTTONWIDTH, 0, Long, , "ahk_id " this.tbHwnd)
                     }
                 }
             }
             If (iString != "")
             {
-                VarSetCapacity(BTNSTR, (StrPut(iString) * (A_IsUnicode ? 2 : 1), 0))
-            ,   StrPut(iString, &BTNSTR, StrPut(iString) * 2)
-                SendMessage, this.TB_ADDSTRING, 0, &BTNSTR,, % "ahk_id " this.tbHwnd
+                VarSetStrCapacity(&BTNSTR, (StrPut(iString) * (1 ? 2 : 1), 0))            ,   StrPut(iString, &BTNSTR, StrPut(iString) * 2) ; V1toV2: if 'BTNSTR' is NOT a UTF-16 string, use 'BTNSTR := Buffer((StrPut(iString) * (A_IsUnicode ? 2 : 1), 0))'
+                if (type(BTNSTR)="Buffer"){ ;V1toV2 If statement may be removed depending on type parameter
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, BTNSTR, , "ahk_id " this.tbHwnd)
+                } else{
+                   ErrorLevel := SendMessage(this.TB_ADDSTRING, 0, StrPtr(BTNSTR), , "ahk_id " this.tbHwnd)
+                }
                 StrIdx := ErrorLevel
             }
             Else
                 StrIdx := -1
-            VarSetCapacity(BtnVar, 8 + (A_PtrSize * 3), 0)
-        ,   NumPut(iBitmap-1, BtnVar, 0, "Int")
-        ,   NumPut(idCommand, BtnVar, 4, "Int")
-        ,   NumPut(tbState, BtnVar, 8, "Char")
-        ,   NumPut(tbStyle, BtnVar, 9, "Char")
-        ,   NumPut(StrIdx, BtnVar, 8 + (A_PtrSize * 2), "Ptr")
-            return {Icon: iBitmap-1, ID: idCommand, State: tbState
-                   , Style: tbStyle, Text: iString, Label: this.Labels[idCommand]}
+            BtnVar := Buffer(8 + (A_PtrSize * 3), 0)        ,   NumPut("Int", iBitmap-1, BtnVar, 0)        ,   NumPut("Int", idCommand, BtnVar, 4)        ,   NumPut("Char", tbState, BtnVar, 8)        ,   NumPut("Char", tbStyle, BtnVar, 9)        ,   NumPut("Ptr", StrIdx, BtnVar, 8 + (A_PtrSize * 2)) ; V1toV2: if 'BtnVar' is a UTF-16 string, use 'VarSetStrCapacity(&BtnVar, 8 + (A_PtrSize * 3))'
+            return {Icon: iBitmap-1, ID: idCommand, State: tbState                   , Style: tbStyle, Text: iString, Label: this.Labels[idCommand]}
         }
 ;=======================================================================================
 ;    Method:             DefineBtnInfoStruct
 ;    Description:        Creates a TBBUTTONINFO structure for a specific member.
 ;=======================================================================================
-        DefineBtnInfoStruct(ByRef BtnVar, Member, ByRef Value)
+        DefineBtnInfoStruct(&BtnVar, Member, &Value)
         {
             Static cbSize := 16 + (A_PtrSize * 4)
             
-            VarSetCapacity(BtnVar, cbSize, 0)
-        ,   NumPut(cbSize, BtnVar, 0, "UInt")
+            BtnVar := Buffer(cbSize, 0)        ,   NumPut("UInt", cbSize, BtnVar, 0) ; V1toV2: if 'BtnVar' is a UTF-16 string, use 'VarSetStrCapacity(&BtnVar, cbSize)'
             If (this[ "TBIF_" Member] )
-                dwMask := this[ "TBIF_" Member ]
-            ,   NumPut(dwMask, BtnVar, 4, "UInt")
+                dwMask := this[ "TBIF_" Member ]            ,   NumPut("UInt", dwMask, BtnVar, 4)
             If (dwMask = this.TBIF_COMMAND)
-                NumPut(Value, BtnVar, 8, "Int") ; idCommand
+                NumPut("Int", Value, BtnVar, 8) ; idCommand
             Else If (dwMask = this.TBIF_IMAGE)
-                Value := Value-1
-            ,   NumPut(Value, BtnVar, 12, "Int") ; iImage
+                Value := Value-1            ,   NumPut("Int", Value, BtnVar, 12)
             Else If (dwMask = this.TBIF_STATE)
-                Value := (this[ "TBSTATE_" Value ]) ? this[ "TBSTATE_" Value ] : Value
-            ,   NumPut(Value, BtnVar, 16, "Char") ; fsState
+                Value := (this[ "TBSTATE_" Value ]) ? this[ "TBSTATE_" Value ] : Value            ,   NumPut("Char", Value, BtnVar, 16)
             Else If (dwMask = this.TBIF_STYLE)
-                Value := (this[ "BTNS_" Value ]) ? this[ "BTNS_" Value ] : Value
-            ,   NumPut(Value, BtnVar, 17, "Char") ; fsStyle
+                Value := (this[ "BTNS_" Value ]) ? this[ "BTNS_" Value ] : Value            ,   NumPut("Char", Value, BtnVar, 17)
             Else If (dwMask = this.TBIF_SIZE)
-                NumPut(Value, BtnVar, 18, "Short") ; cx
+                NumPut("Short", Value, BtnVar, 18) ; cx
             Else If (dwMask = this.TBIF_TEXT)
-                NumPut(&Value, BtnVar, 16 + (A_PtrSize * 2), "UPtr") ; pszText
+                NumPut("UPtr", &Value, BtnVar, 16 + (A_PtrSize * 2)) ; pszText
         }
 ;=======================================================================================
 ;    Method:             BtnSep
 ;    Description:        Creates a TBBUTTON structure for a separator.
 ;    Return:             An array with the button structure values.
 ;=======================================================================================
-        BtnSep(ByRef BtnVar, Options := "")
+        BtnSep(&BtnVar, Options := "")
         {
             tbStyle := this.BTNS_SEP
-            Loop, Parse, Options, %A_Space%%A_Tab%
+            Loop Parse, Options, A_Space "" A_Tab
             {
                 If (this[ "TBSTATE_" A_LoopField ])
                     tbState += this[ "TBSTATE_" A_LoopField ]
             }
-            VarSetCapacity(BtnVar, 8 + (A_PtrSize * 3), 0)
-        ,   NumPut(tbState, BtnVar, 8, "Char")
-        ,   NumPut(tbStyle, BtnVar, 9, "Char")
+            BtnVar := Buffer(8 + (A_PtrSize * 3), 0)        ,   NumPut("Char", tbState, BtnVar, 8)        ,   NumPut("Char", tbStyle, BtnVar, 9) ; V1toV2: if 'BtnVar' is a UTF-16 string, use 'VarSetStrCapacity(&BtnVar, 8 + (A_PtrSize * 3))'
             return {Icon: -1, ID: "", State: tbState, Style: tbStyle, Text: "", Label: ""}
         }
 ;=======================================================================================
@@ -1775,8 +1750,8 @@ Class Toolbar extends Toolbar.Private
 ;=======================================================================================
         GenerateRandomID()
         {
-            While, (!Number || this.Labels.HasKey(Number))
-                Random, Number, 1, 9999
+            While (!Number || this.Labels.Has(Number))
+                Number := Random(1, 9999)
             return Number
         }
 ;=======================================================================================
@@ -1791,10 +1766,9 @@ Class Toolbar extends Toolbar.Private
 ;    Method:             MakeLong
 ;    Description:        Extracts LoWord and HiWord from a LongWord.
 ;=======================================================================================
-        MakeShort(Long, ByRef LoWord, ByRef HiWord)
+        MakeShort(Long, &LoWord, &HiWord)
         {
-            LoWord := Long & 0xffff
-        ,   HiWord := Long >> 16
+            LoWord := Long & 0xffff        ,   HiWord := Long >> 16
         }
     }
 }
@@ -1807,6 +1781,7 @@ Class Toolbar extends Toolbar.Private
 /*
 ^s::
 
+{ ; V1toV2: Added bracket
 Text:="|<>*152$47.0000000000000000000000000000000003zzz0000Dzzz0000P00q0000q01w0001g03s0003M06k0006k0BU000BU0P0000P00q0000q01g0001g03M00037zsk0006DzlU000A0030000Mzzq0000lzzg0001XzXM00037z6k0006DyBU000ATwP00007zzy01"
 
 if ok:=FindText(23,92,150000,150000,0,0,Text)
@@ -1828,6 +1803,7 @@ return
 ; Text can be a lot of text to find, separated by "|".
 ; ruturn is a array, contains the X,Y,W,H,Comment results of Each Find.
 /*
+} ; Added bracket before function
 
 
 FindText(x,y,w,h,err1,err0,text)
@@ -2122,21 +2098,21 @@ B64ToPBitmap( Input ){
 	;Static UPtr , pBitmap , pStream , hData , pData , Dec , DecLen , B64
 	;B64 := Buffer(strlen( Input ) << !!A_IsUnicode)
 	; VarSetStrCapacity(&B64, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)'
-	VarSetCapacity(&B64, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)'
+	VarSetStrCapacity(&&B64, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)' ; V1toV2: if '&B64' is NOT a UTF-16 string, use '&B64 := Buffer(5120000)'
 	; VarSetStrCapacity(&DecLen, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)'
-	VarSetCapacity(&DecLen, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)'
+	VarSetStrCapacity(&&DecLen, 5120000) ; V1toV2: if 'B64' is NOT a UTF-16 string, use 'B64 := Buffer(strlen( Input ) << !!A_IsUnicode)' ; V1toV2: if '&DecLen' is NOT a UTF-16 string, use '&DecLen := Buffer(5120000)'
 	B64 := Input
 	If !DllCall("Crypt32.dll\CryptStringToBinary", "Ptr", B64, "UInt", 0, "UInt", 0x01, "Ptr", 0, "UIntP", &DecLen, "Ptr", 0, "Ptr", 0)
 		Return False
 	; Dec := Buffer(DecLen, 0) ; V1toV2: if 'Dec' is a UTF-16 string, use 'VarSetStrCapacity(&Dec, DecLen)'
 	; VarSetStrCapacity(&Dec, DecLen) ; V1toV2: if 'Dec' is a UTF-16 string, use 'VarSetStrCapacity(&Dec, DecLen)'
-	VarSetCapacity(&Dec, DecLen) ; V1toV2: if 'Dec' is a UTF-16 string, use 'VarSetStrCapacity(&Dec, DecLen)'
+	VarSetStrCapacity(&&Dec, DecLen) ; V1toV2: if 'Dec' is a UTF-16 string, use 'VarSetStrCapacity(&Dec, DecLen)' ; V1toV2: if '&Dec' is NOT a UTF-16 string, use '&Dec := Buffer(DecLen)'
 	If !DllCall("Crypt32.dll\CryptStringToBinary", "Ptr", B64, "UInt", 0, "UInt", 0x01, "Ptr", Dec, "UIntP", &DecLen, "Ptr", 0, "Ptr", 0)
 		Return False
 	DllCall("Kernel32.dll\RtlMoveMemory", "Ptr", pData := DllCall("Kernel32.dll\StaticLock", "Ptr", hData := DllCall("Kernel32.dll\StaticAlloc", "UInt", 2, UPtr := A_PtrSize ? "UPtr" : "UInt", DecLen, "UPtr"), "UPtr"), "Ptr", Dec, "UPtr", DecLen)
 	DllCall("Kernel32.dll\StaticUnlock", "Ptr", hData)
-	DllCall("Ole32.dll\CreateStreamOnHStatic", "Ptr", hData, "Int", True, "Ptr", &pStream)
-	DllCall("Gdiplus.dll\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr", &pBitmap)
+	DllCall("Ole32.dll\CreateStreamOnHStatic", "Ptr", hData, "Int", True, "Ptr", pStream)
+	DllCall("Gdiplus.dll\GdipCreateBitmapFromStream", "Ptr", pStream, "Ptr", pBitmap)
 	return pBitmap
 }
 ; --------------------------------------------------------------------------------
@@ -2154,34 +2130,34 @@ MyIcon_B64()
 ; Description .....: addTrayMenuOption() ; madeBy() ; runAtStartup() ; trayNotify()
 ; --------------------------------------------------------------------------------
 
-addTrayMenuOption(label = "", command = "") {
+addTrayMenuOption(label := "", command := "") {
 	if (label = "" && command = "") {
-		Menu, Tray, Add
+		Tray.Add()
 	} else {
-		Menu, Tray, Add, % label, % command
+		Tray.Add(label, % command)
 	}
 }
 
 madeBy(){
 	; visit authors website
 	;Run, https://bibeka.com.np/
-	MsgBox This was made by nerds, for nerds. Regular people are ok too, lol.`nModified by Adam Bacon`nCredit:Made with ❤️ by Bibek Aryal
+	MsgBox("This was made by nerds, for nerds. Regular people are ok too, lol.`nModified by Adam Bacon`nCredit:Made with â¤ï¸ by Bibek Aryal")
 }
 
 runAtStartup() {
 	if (FileExist(startup_shortcut)) {
-		FileDelete, % startup_shortcut
-		Menu, Tray, % "unCheck", Run at startup ; update the tray menu status on change
+		FileDelete(startup_shortcut)
+		Tray.% "unCheck"("Run at startup") ; update the tray menu status on change
 		trayNotify("Startup shortcut removed", "This script will not run when you turn on your computer.")
 	} else {
-		FileCreateShortcut, % a_scriptFullPath, % startup_shortcut
-		Menu, Tray, % "check", Run at startup ; update the tray menu status on change
+		FileCreateShortcut(a_scriptFullPath, startup_shortcut)
+		Tray.% "check"("Run at startup") ; update the tray menu status on change
 		trayNotify("Startup shortcut added", "This script will now automatically run when your turn on your computer.")
 	}
 
 }
-trayNotify(title, message, seconds = "", options = 0) {
-	TrayTip, %title%, %message%, %seconds%, %options%
+trayNotify(title, message, seconds := "", options := 0) {
+	TrayTip(title, message, options)
 }
 ; --------------------------------------------------------------------------------
 ; ; Static TB_ADDBUTTONS            := 0x0414
