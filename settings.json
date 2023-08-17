@@ -1,0 +1,722 @@
+{
+    "[ahk]":
+    {
+        "files.encoding": "utf8bom",
+        "editor.defaultFormatter": "mark-wiemer.vscode-autohotkey-plus-plus"
+    },
+    "security.workspace.trust.enabled": false,
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "files.autoSave": "onFocusChange",
+    "editor.wordWrap": "on",
+    "files.associations": {
+        ".ahk": "AutoHotKey",
+        ".v1.ahk": "AutoHotKey v1",
+        ".c1v1.ahk": "AutoHotKey v1",
+        ".ahk2": "AutoHotkey v2",
+        ".ah2": "AutoHotkey v2",
+        ".v2.ahk": "AutoHotkey v2",
+        ".c2v2.ahk": "AutoHotkey v2",
+        "*.ahk": "ahk"
+    },
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.defaultColorDecorators": true,
+    "editor.defaultFormatter": "thqby.vscode-autohotkey2-lsp",
+    "editor.guides.bracketPairs": true,
+    "editor.linkedEditing": true,
+    "editor.smoothScrolling": true,
+    "editor.stickyTabStops": true,
+    "editor.tabCompletion": "on",
+    "window.commandCenter": true,
+    // "launch": {
+    //     // Use IntelliSense to learn about possible attributes.
+    //     // Hover to view descriptions of existing attributes.
+    //     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //     "version": "0.2.0",
+    //     "configurations": [
+    //         {
+    //             // F5 (Run in Debug), Ctrl+F5 (Run without Debug)
+    //             "name": "Debug AHK v1", // Configuration Name
+    //             "type": "autohotkey", // Configuration type, cppdbg corresponds to the debugging function provided by cpptools; it can be considered that only cppdbg can be used here
+    //             "request": "launch", // Request configuration type, which can be launch (start) or attach (attach)
+    //             "runtime": "C:/${env:PROGRAMFILES}/AutoHotKey/AutoHotkey.exe",
+    //             "program": "${fileDirname}/${fileBasenameNoExtension}.ahk", // The path of the program to be debugged
+    //             //"program": "${workspaceRoot}/main/${fileBasenameNoExtension}.exe", // the path of the program to be debugged
+    //             "args": [], //The command line parameters passed to the program when the program is debugged, just set it to empty here
+    //             // "stopAtEntry": false, // When set to true, the program will pause at the program entry, which is equivalent to breaking the main point
+    //             // "cwd": "${workspaceFolder}", // The working directory when debugging the program, here is the directory where the source code file is located, ${workspaceRoot}
+    //             // "environment": ["${env:USERNAME}"], // Environment variable, set it to empty here
+    //             // "externalConsole": false, // When it is true, use a separate cmd window and jump out of the small black box; if it is false, it uses the built-in terminal of vscode, and it is recommended to use the built-in terminal
+    //             "internalConsoleOptions": "neverOpen" // If it is not set to neverOpen, it will jump to the "Debug Console" tab when debugging, which is not used for novice debugging
+    //             // "MIMode": "autohotkey", // Specify the connected debugger, gdb is the debugger in minGW
+    //             // "miDebuggerPath": "C:/${env:PROGRAMFILES}/AutoHotKey/AutoHotkeyU64.exe", // Specify the path where the debugger is located, absolute path
+    //             // "preLaunchTask": "cppBuild", // The task executed before debugging starts, we need to compile and build before debugging. Corresponding to the label of tasks.json, the name should be the same
+    //             // "setupCommands": [
+    //             //     {
+    //             //         "description": "Enable pretty-printing for gdb", // Enable pretty printing for gdb
+    //             //         "text": "-enable-pretty-printing",
+    //             //         "ignoreFailures": true
+    //             //     }
+    //             // ]
+    //         },
+    //         {
+    //             // F5 (Run in Debug), Ctrl+F5 (Run without Debug)
+    //             "name": "Debug AHK v2", // Configuration Name
+    //             "type": "autohotkey", // Configuration type, cppdbg corresponds to the debugging function provided by cpptools; it can be considered that only cppdbg can be used here
+    //             "request": "launch", // Request configuration type, which can be launch (start) or attach (attach)
+    //             "runtime": "C:/${env:PROGRAMFILES}/AutoHotKey/AutoHotkey.exe",
+    //             "program": "${fileDirname}/${fileBasenameNoExtension}.ahk", // The path of the program to be debugged
+    //             //"program": "${workspaceRoot}/main/${fileBasenameNoExtension}.exe", // the path of the program to be debugged
+    //             "args": ["${env:USERNAME}"], //The command line parameters passed to the program when the program is debugged, just set it to empty here
+    //             // "stopAtEntry": false, // When set to true, the program will pause at the program entry, which is equivalent to breaking the main point
+    //             // "cwd": "${workspaceFolder}", // The working directory when debugging the program, here is the directory where the source code file is located, ${workspaceRoot}
+    //             // "environment": ["${env:USERNAME}"], // Environment variable, set it to empty here
+    //             // "externalConsole": false, // When it is true, use a separate cmd window and jump out of the small black box; if it is false, it uses the built-in terminal of vscode, and it is recommended to use the built-in terminal
+    //             "internalConsoleOptions": "neverOpen" // If it is not set to neverOpen, it will jump to the "Debug Console" tab when debugging, which is not used for novice debugging
+    //             // "MIMode": "ahk", // Specify the connected debugger, gdb is the debugger in minGW
+    //             // "miDebuggerPath": "C:/${env:PROGRAMFILES}/AutoHotKey/AutoHotkey64.exe", // Specify the path where the debugger is located, absolute path
+    //             // "preLaunchTask": "cppBuild", // The task executed before debugging starts, we need to compile and build before debugging. Corresponding to the label of tasks.json, the name should be the same
+    //             // "setupCommands": [
+    //             //     {
+    //             //         "description": "Enable pretty-printing for gdb", // Enable pretty printing for gdb
+    //             //         "text": "-enable-pretty-printing",
+    //             //         "ignoreFailures": true
+    //             //     }
+    //             // ]
+    //         }
+    //     ],
+    //     "compounds": []
+    // },
+    // // "launch": {
+    // //     "configurations": [
+
+    // //     ],
+    // //     "compounds": []
+    // // },
+    "workbench.colorTheme": "Default Dark+",
+    "oracledevtools.bookmarkFileFolder": "C:\\Users\\bacona\\Oracle\\oracle.oracledevtools",
+    "oracledevtools.download.otherFolder": "C:\\Users\\bacona\\downloads",
+    "oracledevtools.connectionConfiguration.configFilesFolder": "C:\\Users\\bacona\\Oracle\\network\\admin",
+    "oracledevtools.connectionConfiguration.walletFileFolder": "C:\\Users\\bacona\\Oracle\\network\\admin",
+    "ahk++.file.maximumParseLength": -1,
+    "ahk++.file.helpPath": "C:/ProgramFiles/AutoHotkey/UX/AutoHotkey.chm",
+    "ahk++.file.executePath": "C:/ProgramFiles/AutoHotkey/UX/AutoHotkeyUX.exe",
+    "ahk++.file.compilePath": "C:/ProgramFiles/AutoHotkey/Compiler/Ahk2Exe.exe",
+    "code-runner.clearPreviousOutput": true,
+    "code-runner.runInTerminal": true,
+    "git.enableSmartCommit": true,
+    "editor.experimental.asyncTokenization": true,
+    "editor.quickSuggestions": {
+        "other": "inline",
+        "comments": "inline",
+        "strings": "inline"
+    },
+    "editor.suggest.preview": true,
+    "editor.suggest.shareSuggestSelections": true,
+    "files.encoding": "utf8bom",
+    "files.trimFinalNewlines": true,
+    "workbench.commandPalette.preserveInput": true,
+    "workbench.commandPalette.experimental.suggestCommands": true,
+    "workbench.experimental.cloudChanges.autoStore": "onShutdown",
+    "workbench.experimental.share.enabled": true,
+    "workbench.experimental.cloudChanges.partialMatches.enabled": true,
+    "workbench.reduceMotion": "off",
+    "workbench.editor.limit.enabled": true,
+    "workbench.editor.limit.value": 5,
+    "workbench.editor.wrapTabs": true,
+    "screencastMode.keyboardShortcutsFormat": "commandWithGroupAndKeys",
+    "window.restoreFullscreen": true,
+    "window.openFilesInNewWindow": "default",
+    "explorer.fileNesting.enabled": true,
+    "remoteHub.commitDirectlyWarning": "off",
+    "debug.inlineValues": "on",
+    "debug.allowBreakpointsEverywhere": true,
+    "debug.autoExpandLazyVariables": true,
+    "prettier.enableDebugLogs": true,
+    "markdown.trace.extension": "verbose",
+    "better-comments.highlightPlainText": true,    
+    "better-comments.tags": [
+    
+    {
+        "tag": "- [x]",
+        "color": "#6a6758",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "[x]",
+        "color": "#6a6758",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "!",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "?",
+        "color": "#3498DB",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "[o]",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "[ ] todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "- [ ] todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "bug",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "[ ] bug",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "- [ ] bug",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "fix",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "[ ] fix",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "- [ ] fix",
+        "color": "#FF2D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "*",
+        "color": "#98C379",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "Comment",
+        "color": "#ffffff",
+        "backgroundColor": "#00AEEF",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "<<<<<",
+        "color": "#ffffff",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Function",
+        "color": "#15f2fd",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Section",
+        "color": "#322e2f",
+        "backgroundColor": "#10ff3d",
+        "bold": true,
+        "italic": true,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Title:",
+        "color": "#322e2f",
+        "backgroundColor": "#10ff3d",
+        "bold": true,
+        "italic": true,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Variable",
+        "color": "#00CCFF",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#833AB4",
+        "bold": true,
+        "italic": true
+    },
+    {
+        "tag": "sub", /*sub-section*/
+        "color": "#1F1926",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#008FFF",
+        "bold": true,
+        "italic": true
+    },
+    {
+        "tag": "Desc",
+        "color": "#1F1926",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#008FFF",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "Method",
+        "color": "#1F1926",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#008FFF",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "refactor",
+        "color": "#1F1926",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#FCEAFF",
+        "bold": true,
+        "italic": true
+    },
+    {
+        "tag": "removed",
+        "color": "#926D00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#C4FCEF",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "-",
+        "color": "#4f85dc",
+        "backgroundColor": "transparent",
+        "strikethrough": false,
+        "underline": false,
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "!",
+        "color": "#FF0000",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#B0A8B9",
+        "bold": true,
+        "italic": true
+    },
+    {
+        "tag": "?",
+        "color": "#3498DB",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "//",
+        "color": "#474747",
+        "strikethrough": true,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "todo",
+        "color": "#FF8C00",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "#e2d92a",
+        "bold": false,
+        "italic": true
+    },
+    {
+        "tag": "</s",
+        "color": "#98C379",
+        "strikethrough": true,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false
+    },
+    {
+        "tag": "*",
+        "color": "#98C379",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": true,
+        "italic": false
+    },
+    {
+        "tag": "parameters",
+        "color": "#98C379",
+        "strikethrough": false,
+        "underline": false,
+        "backgroundColor": "transparent",
+        "bold": true,
+        "italic": false
+    },
+    {
+        "tag": "fixme",
+        "color": "red",
+        "backgroundColor": "#1c33a2",
+        "bold": true,
+        "italic": true
+    },
+    {
+        "tag": "fixed",
+        "color": "#fdafee",
+        "backgroundColor": "transparent",
+        "bold": true,
+        "italic": true,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "reference",
+        "color": "#10ff0d",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "credit",
+        "color": "#10ff0d",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Note",
+        "color": "brown",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "Step",
+        "color": "#98C379",
+        "backgroundColor": "transparent",
+        "bold": false,
+        "italic": false,
+        "strikethrough": false,
+        "underline": false
+    },
+    {
+        "tag": "author",
+        "color": "#10ff3d",
+        "backgroundColor": "#1c33a2",
+        "bold": true,
+        "italic": true,
+        "strikethrough": false,
+        "underline": false
+    }
+
+    ],
+    "todo-tree.general.debug": true,
+    "todo-tree.tree.scanAtStartup": false,
+    "todo-tree.general.schemes": [
+        "file",
+        "ssh",
+        "untitled",
+        "vscode-notebook-cell",
+        "output"
+    ],
+    "todo-tree.highlights.enabled": true,
+    "todo-tree.tree.labelFormat": "${tag:uppercase} ${after} [${filename}]",
+    "todo-tree.tree.tooltipFormat": "${filename}:[${line}] in ${filepath}",
+    "todo-tree.general.tags": [
+        "BUG",
+        "HACK",
+        "FIXME",
+        "TODO",
+        "XXX",
+        "[]",
+        "First Return",
+        "[ ]",
+        "[x]",
+        "[o]"
+    ],
+    "AhkNekoHelp.Diag.AMasterSwitch": "alway",
+    "AhkNekoHelp.Diag.code107LegacyAssignment": false,
+    "AutoHotkey2.CompleteFunctionParens": true,
+    "[AutoHotkey2]": {
+
+        "editor.definitionLinkOpensInPeek": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnType": true,
+        "files.encoding": "utf8bom"
+    },
+    "editor.codeActionsOnSave": {
+
+    },
+    "code-runner.saveAllFilesBeforeRun": true,
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.defaultLanguage": "AutoHotkey",
+    "code-runner.executorMapByFileExtension": {
+
+        ".vb": "cd $dir && vbc /nologo $fileName && $dir$fileNameWithoutExt",
+        ".vbs": "cscript //Nologo",
+        ".scala": "scala",
+        ".jl": "julia",
+        ".cr": "crystal",
+        ".ml": "ocaml",
+        ".zig": "zig run",
+        ".exs": "elixir",
+        ".hx": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+        ".rkt": "racket",
+        ".scm": "csi -script",
+        // ".ahk": "autohotkey",
+        ".ahk": "C:/ProgramFiles/AutoHotkey/UX/AutoHotkeyUX.exe",
+        ".au3": "autoit3",
+        ".kt": "cd $dir && kotlinc $fileName -include-runtime -d $fileNameWithoutExt.jar && java -jar $fileNameWithoutExt.jar",
+        ".kts": "kotlinc -script",
+        ".dart": "dart",
+        ".pas": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        ".pp": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        ".d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+        ".hs": "runhaskell",
+        ".nim": "nim compile --verbosity:0 --hints:off --run",
+        ".csproj": "dotnet run --project",
+        ".fsproj": "dotnet run --project",
+        ".lisp": "sbcl --script",
+        ".kit": "kitc --run",
+        ".v": "v run",
+        ".vsh": "v run",
+        ".sass": "sass --style expanded",
+        ".cu": "cd $dir && nvcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        ".ring": "ring",
+        ".sml": "cd $dir && sml $fileName"
+    },
+    "code-runner.executorMap": {
+
+        "javascript": "node",
+        "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "zig": "zig run",
+        "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "objective-c": "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "php": "php",
+        "python": "python -u",
+        "perl": "perl",
+        "perl6": "perl6",
+        "ruby": "ruby",
+        "go": "go run",
+        "lua": "lua",
+        "groovy": "groovy",
+        "powershell": "powershell -ExecutionPolicy ByPass -File",
+        "bat": "cmd /c",
+        "shellscript": "bash",
+        "fsharp": "fsi",
+        "csharp": "scriptcs",
+        "vbscript": "cscript //Nologo",
+        "typescript": "ts-node",
+        "coffeescript": "coffee",
+        "scala": "scala",
+        "swift": "swift",
+        "julia": "julia",
+        "crystal": "crystal",
+        "ocaml": "ocaml",
+        "r": "Rscript",
+        "applescript": "osascript",
+        "clojure": "lein exec",
+        "haxe": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+        "rust": "cd $dir && rustc $fileName && $dir$fileNameWithoutExt",
+        "racket": "racket",
+        "scheme": "csi -script",
+        // "ahk": "autohotkey",
+        ".ahk": "\"C:/${env:PROGRAMFILES}/AutoHotkey/AutoHotkey.exe\"",
+        "ahk": "\"C:/${env:PROGRAMFILES}/AutoHotkey/AutoHotkey.exe\"",
+        "autoit": "autoit3",
+        "dart": "dart",
+        "pascal": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        "d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+        "haskell": "runghc",
+        "nim": "nim compile --verbosity:0 --hints:off --run",
+        "lisp": "sbcl --script",
+        "kit": "kitc --run",
+        "v": "v run",
+        "sass": "sass --style expanded",
+        "scss": "scss --style expanded",
+        "less": "cd $dir && lessc $fileName $fileNameWithoutExt.css",
+        "FortranFreeForm": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran-modern": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran_fixed-form": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "sml": "cd $dir && sml $fileName"
+    },
+    "git.openRepositoryInParentFolders": "never",
+    "AutoHotkey2.SymbolFoldingFromOpenBrace": true,
+    "html-related-links.alwaysShow": true,
+    "AutoHotkey2.DefaultDebugger": "thqby.vscode-autohotkey2-lsp",
+    "AutoHotkey2.InterpreterPath": "c:/Program Files/AutoHotkey/v2/AutoHotkey.exe",
+    "debug.openExplorerOnEnd": true,
+    "debug.showBreakpointsInOverviewRuler": true,
+    "launch": {
+
+        "inputs": [],
+        "configurations": [],
+        "compounds": []
+    },
+    "workbench.settings.applyToAllProfiles": [
+        "ahk++.compiler.compileBaseFile"
+    ],
+    "ahk++.compiler.compileBaseFile": "C:/ProgramFiles/AutoHotkey/Compiler/",
+    "ahk++.compiler.compileIcon": "C:/Users/bacona/OneDrive - FM Global/Documents/AutoHotkey/Lib",
+    "ahk++.formatter.allowedNumberOfEmptyLines": -1,
+    "ahk++.formatter.preserveIndent": true,
+    "ahk++.intellisense.maximumParseLength": -1,
+    "AutoHotkey2.CompletionCommitCharacters": {
+    },
+    "vsintellicode.modelDownloadPath": "",
+    "AutoHotkey2.ActionWhenV1IsDetected": "Continue",
+    "[ahk2]": {
+
+        "editor.defaultFormatter": "thqby.vscode-autohotkey2-lsp",
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": true
+        }
+    }
+        /*    "better-comments.tags": [
+        {
+            "tag": "!",
+            "color": "#FF2D00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "?",
+            "color": "#3498DB",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "//",
+            "color": "#474747",
+            "strikethrough": true,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "todo",
+            "color": "#FF8C00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "*",
+            "color": "#98C379",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        }
+    ]
+    */    
+}

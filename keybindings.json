@@ -1,0 +1,57 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+    {
+        "key": "alt+r",
+        "command": "action.reloadWindow"
+    },
+    {
+    "key": "f9",
+    "command": "-ahk++.debug",
+    "when": "editorLangId == 'ahk'"
+    },
+    {
+        "key": "ctrl+alt+l",
+        "command": "ahk.nekoHelp.displayLogMessage",
+        "when": "editorLangId == 'ahk','ahk2','ah2','autohotkey'"
+    },
+    {
+        "key": "ctrl+alt+l",
+        "command": "-ahk.nekoHelp.displayLogMessage",
+        "when": "editorLangId == 'ahk'"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.quickOpenNavigateNextInRecentFilesPicker",
+        "when": "-"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "-workbench.action.quickOpenNavigateNextInRecentFilesPicker",
+        "when": "inQuickOpen && inRecentFilesPicker"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.terminal.runRecentCommand",
+        "when": "-"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "-workbench.action.terminal.runRecentCommand",
+        "when": "accessibilityModeEnabled && terminalFocus && terminalHasBeenCreated || accessibilityModeEnabled && terminalFocus && terminalProcessSupported"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.reloadWindow",
+        "when": "editorFocus &&editorLangId == == autohotkey"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "-workbench.action.reloadWindow",
+        "when": "isDevelopment"
+    },
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.reloadWindow",
+        "when": "editorFocus"
+    },
+]
