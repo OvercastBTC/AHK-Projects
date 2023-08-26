@@ -25,14 +25,22 @@
 #MaxThreads 255 ; Allows a maximum of 255 instead of default threads.
 #Warn All, OutputDebug
 #SingleInstance Force
-SendMode("Input") ;* Superior speed and reliability.
-SetWorkingDir(A_ScriptDir) ; A consistent starting directory.
-SetTitleMatchMode(2) ; Match = "containing" instead of "exact"
+SendMode("Input")
+SetWorkingDir(A_ScriptDir)
+SetTitleMatchMode(2)
+; --------------------------------------------------------------------------------
 DetectHiddenText(true)
 DetectHiddenWindows(true)
+; --------------------------------------------------------------------------------
+#Requires AutoHotkey v2
+; --------------------------------------------------------------------------------
+SetControlDelay(-1)
 SetMouseDelay(-1)
-; CoordMode("Mouse", "Client")
-#Requires Autohotkey v2
+SetWinDelay(-1)
+; --------------------------------------------------------------------------------
+; DllCall("SetThreadDpiAwarenessContext", "ptr", -4, "ptr")
+DllCall("SetThreadDpiAwarenessContext", "ptr", -1, "ptr")
+; --------------------------------------------------------------------------------
 #Include <gdi_plus_plus>
 #Include <Gdip_All>
 #Include <Class_Toolbar.c2v2>
@@ -72,10 +80,6 @@ TraySetIcon('HICON:' Create_HznHorizon_ico())
 {
 	Script.Reload()
 }
-#HotIf
-#HotIf !ProcessGetName("hznhorizon.exe")
-	SetWinDelay(-1)
-	SetControlDelay(-1)
 #HotIf
 
 ; -------------------------------------------------------------------------------------------------
@@ -164,7 +168,6 @@ HznSave()
 	/**@param BlockInput() => prevents the user from doing anything to screw it up */
 	BlockInput(1)
 	; --------------------------------------------------------------------------------
-	DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 	DllCall("SetCursorPos", "int", X, "int", Y)  ; The first number is the X-coordinate and the second is the Y (relative to the screen)
 	; --------------------------------------------------------------------------------
 	/**@param Sleep(100) as the mouse likes to click before it gets to the coordinates => improve reliability */
@@ -291,15 +294,16 @@ button(*) {
 	nCtl := "msvb_lib_toolbar" bID
 	hTb := ControlGethWnd(nCtl, "A")
 	hTx := ControlGethWnd(fCtl, "A")
-	hIDx:= A_ThisHotkey = "^i" ? 10 ;.........: italic = 2
+	hIDx:= A_ThisHotkey = "^i" ? 2 ;.........: italic = 2
 		:  A_ThisHotkey = "^b" ? 1 ; .........: bold = 1
-		:  A_ThisHotkey = "^u" ? 15 ; ........: (AJB - 08/2023) FE Notepad, Comments, and COPE => u = 10; 3 worked somewhere? (???9 and 10???) (else i or b)
+		:  A_ThisHotkey = "^u" ? 9 ; 9 = not ASUS monitor, 10 = ASUS monitor........: (AJB - 08/2023) FE Notepad, Comments, and COPE => u = 10; 3 worked somewhere? (???9 and 10???) (else i or b)
 		:  A_ThisHotkey = "^x" ? 11 ; ........: cut = 11 and 12
 		:  A_ThisHotkey = "^c" ? 13 ; ........: copy
 		:  A_ThisHotkey = "^v" ? 16 ; ........: paste
 		:  A_ThisHotkey = "^z" ? 17 ; ........: undo = 17 and 18
 		:  A_ThisHotkey = "^y" ? 20 : 21 ; ...: redo
-	HznButton(hTb,hIDx,nCtl,fCtl,hTx, bID)
+	; HznButton(hTb,hIDx,nCtl,fCtl,hTx, bID)
+	HznButton(hTb, hIDx, nCtl)
 	SendLevel(0)
 	BlockInput(0) ; 1 = On, 0 = Off
 	return
@@ -370,10 +374,7 @@ HznButton(hToolbar, n, nCtl, fCtl:=0, hTx:=0, bID:=0) {
 	; --------------------------------------------------------------------------------
 	try ControlGetPos(&ctrlx:=0, &ctrly:=0,&ctrlw,&ctrlh, hToolbar, hToolbar)
 	; OutputDebug("&ctrlx: " . ctrlx " &ctrly: " . ctrly " &ctrlw: " . ctrlw " &ctrlh: " . ctrlh . "`n")
-	; --------------------------------------------------------------------------------
-	; Step: https://www.autohotkey.com/docs/v2/misc/DPIScaling.htm
-	; * To enable per-monitor DPI awareness, call the following function prior to using functions that are normally affected by DPI scaling:
-	DllCall("SetThreadDpiAwarenessContext", "ptr", -4, "ptr")
+
 	; --------------------------------------------------------------------------------
 	; Step: count and load all the msvb_lib_toolbar buttons into memory
 	; --------------------------------------------------------------------------------
@@ -428,19 +429,86 @@ HznButton(hToolbar, n, nCtl, fCtl:=0, hTx:=0, bID:=0) {
 		SetMouseDelay(-1)
 		SetWinDelay(-1)
 		; --------------------------------------------------------------------------------
-		Left 	:= NumGet(RECT, 0, "int")
-		Top 	:= NumGet(RECT, 4, "int")
-		Right 	:= NumGet(RECT, 8, "int")
-		Bottom 	:= NumGet(RECT, 12, "int")
+		Left 	:= NumGet(RECT, 0, 	"Int")
+		Top 	:= NumGet(RECT, 4, 	"Int")
+		Right 	:= NumGet(RECT, 8, 	"Int")
+		Bottom 	:= NumGet(RECT, 12, "Int")
 		X 		:= Left
 		Y 		:= Top
 		W 		:= Right-Left
 		H 		:= Bottom-Top
 		; --------------------------------------------------------------------------------
-		; MouseMove(((X+W)//2),((Y+H)//2))
-		ControlClick("x" ((X+W)//2) " y" ((Y+H)//2), hToolbar,,,, "NA")
-		; Sleep(500)
+		; ControlClick("x" ((X+W)//2) " y" ((Y+H)//2), hToolbar,,,, "NA")
+		; if (n = 1)
+			; {
+		SendLevel(5)
+		fCtl := ControlGetClassNN(ControlGetFocus('A'))
 		; --------------------------------------------------------------------------------
+		hWnd := ControlGetFocus('A')
+		flag := MONITOR_DEFAULTTONEAREST := 0x00000002
+		monWin := 	DllCall('user32\MonitorFromWindow', 'ptr', hWnd, 'int', flag)
+		hMonitor := DllCall('user32\MonitorFromWindow', 'ptr', hwnd, "uint", MONITOR_DEFAULTTONEAREST, 'ptr')
+		OutputDebug('monWin: ' monWin)
+		DisplayObj(Obj, Depth:=5, IndentLevel:="")
+		{
+			if Type(Obj) = "Object"
+				Obj := Obj.OwnProps()
+			for k,v in Obj
+			{
+				List.= IndentLevel "[" k "]"
+				if (IsObject(v) && Depth>1)
+					List.="`n" DisplayObj(v, Depth-1, IndentLevel . "    ")
+				Else
+					List.=" => " v
+				List.="`n"
+			}
+			return RTrim(List)
+		}
+		mNumber := DisplayObj(GetNearestMonitorInfo(hMonitor))
+		test := DllCall("User32\GetDpiForWindow", "Ptr", hwnd, "UInt")
+		GetNearestMonitorInfo(hMonitor*) {
+			static MONITOR_DEFAULTTONEAREST := 0x00000002
+			; hwnd := WinExist(winTitle*)
+			; hwnd := winTitle := WinActive('A')
+			hMonitor := DllCall("MonitorFromWindow", "ptr", hwnd, "uint", MONITOR_DEFAULTTONEAREST, "ptr")
+			NumPut("uint", 104, MONITORINFOEX := Buffer(104))
+			if (DllCall("user32\GetMonitorInfo", "ptr", hMonitor, "ptr", MONITORINFOEX)) {
+				Return  { Handle   : hMonitor
+						, Name     : Name := StrGet(MONITORINFOEX.ptr + 40, 32)
+						, Number   : RegExReplace(Name, ".*(\d+)$", "$1")
+						, Left     : L  := NumGet(MONITORINFOEX,  4, "int")
+						, Top      : T  := NumGet(MONITORINFOEX,  8, "int")
+						, Right    : R  := NumGet(MONITORINFOEX, 12, "int")
+						, Bottom   : B  := NumGet(MONITORINFOEX, 16, "int")
+						, WALeft   : WL := NumGet(MONITORINFOEX, 20, "int")
+						, WATop    : WT := NumGet(MONITORINFOEX, 24, "int")
+						, WARight  : WR := NumGet(MONITORINFOEX, 28, "int")
+						, WABottom : WB := NumGet(MONITORINFOEX, 32, "int")
+						, Width    : Width  := R - L
+						, Height   : Height := B - T
+						, WAWidth  : WR - WL
+						, WAHeight : WB - WT
+						, Primary  : NumGet(MONITORINFOEX, 36, "uint")
+					}
+			}
+			throw Error("GetMonitorInfo: " A_LastError, -1)
+		}
+
+		dpi := DllCall("User32\GetDpiForWindow", "Ptr", hwnd, "UInt")
+		mDPI := GetDpiForMonitor(hMonitor)
+		fDPI := DisplayObj(mDPI)
+		OutputDebug(fDPI)
+		GetDpiForMonitor(hMonitor, Monitor_Dpi_Type := 0) {  ; MDT_EFFECTIVE_DPI = 0 (shellscalingapi.h)
+			local dpiX := 0, dpiY := 0
+			return DllCall("Shcore.dll\GetDpiForMonitor", "Ptr", hMonitor, "Int", Monitor_Dpi_Type, "UIntP", dpiX, "UIntP", dpiY, "UInt") ? 0 : {X:dpiX,Y:dpiY}
+		}
+		VirtualScreenWidth := SysGet(78)
+		VirtualScreenHeight := SysGet(79)
+		; --------------------------------------------------------------------------------
+		; MsgBox('monitor#: `n' mNumber '`n' 'hDPI?: ' dpi '`n' 'Test: ' test '`n' 'vW?: ' VirtualScreenWidth '`n' 'vH: ' VirtualScreenHeight '`n' monWin '`n' hMonitor '`n' fDPI '`n' (ctrlh) '`n' ctrlw '`n' (ctrlw/ctrlh))
+		OutputDebug('monitor#: `n' mNumber '`n' 'hDPI?: ' dpi '`n' 'Test: ' test '`n' 'vW?: ' VirtualScreenWidth '`n' 'vH: ' VirtualScreenHeight '`n' monWin '`n' hMonitor '`n' fDPI '`n' (ctrlh) '`n' ctrlw '`n' (ctrlw/ctrlh))
+
+
 		; --------------------------------------------------------------------------------
 		; Step: Restore previous and set delay
 		; --------------------------------------------------------------------------------
