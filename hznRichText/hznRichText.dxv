@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<DocumentXSettings Version="2.8" ShowAfterCompile="True" CompileHelpFile="True" Template="platesJanus" RefreshIfExists="False" DocumentSourceCode="True" RootProject="hznRichText" AlwaysCopySupportFiles="True" PropertyCommentsFrom="0" RelationshipsFrom="0" DefaultRelsOnlyForCollections="True" ProjectGroupName="" ObjFillColor="16763072" ObjTextColor="0" ColFillColor="9502719" ColTextColor="0" UseDropShadow="True" SupressSingleObjectDiagrams="True">
+    <Projects>
+        <Project AddedManually="False" CompiledComponent="False" FileName="D:\Prj\hznRichText\hznRichText.vbp" RootModule="" CommentFileName="\\\" Selected="True"/>
+    </Projects>
+    <Modules>
+        <Module ProjectName="hznRichText" ModuleName="fmgRichText" Included="True"/>
+        <Module ProjectName="hznRichText" ModuleName="frmDlgTable" Included="True"/>
+    </Modules>
+    <OutputLocation OutputFolder="D:\Prj\hznRichText\DocumentX" CHMFileName="D:\Prj\hznRichText\hznRichText.chm"/>
+    <HTMLHelpOptions hhpTemplate="D:\Program Files\Innovasys\DocumentX\Configuration\Templates\Janus\template.hhp" hhktemplate="D:\Program Files\Innovasys\DocumentX\Configuration\Templates\Janus\template.hhk" hhctemplate="D:\Program Files\Innovasys\DocumentX\Configuration\Templates\Janus\template.hhc" UseALinkMenus="True"/>
+    <OtherOptions CreateContextLinks="False" WriteHelpDescriptions="False" CopySourceCode="False" CreateWinHelpStub="False" Language="English"/>
+    <IncludeFilters IncludePrivate="True" IncludeFriend="True" IdentifyVisibility="True">
+        <Include ElementType="Interfaces"/>
+        <Include ElementType="Methods"/>
+        <Include ElementType="Properties"/>
+        <Include ElementType="Events"/>
+        <Include ElementType="Enumerations"/>
+        <Include ElementType="UDTs"/>
+        <Include ElementType="Libraries"/>
+    </IncludeFilters>
+    <CommentExtraction IncludeAllTagged="True" HelpDescriptionImport="1">
+        <Untagged ElementType="Modules"/>
+        <Untagged ElementType="Variables"/>
+        <Untagged ElementType="Blocks"/>
+        <Untagged ElementType="Events"/>
+        <Untagged ElementType="Enumerations"/>
+        <Untagged ElementType="UDTs"/>
+    </CommentExtraction>
+    <Diagrams PageNestingLevels="2" OverviewNestingLevels="3"/>
+    <TableOfContents Source="TemplateDefault"/>
+    <VariableValues>
+        <VariableValue Name="Author" Value="FM Global"/>
+        <VariableValue Name="Last Modified" Value="11/2/2001"/>
+        <VariableValue Name="Release Version" Value="1.00.0033"/>
+    </VariableValues>
+    <AdditionalFiles/>
+    <ModelComments>
+        <ModelCommentProfile>Collection Members</ModelCommentProfile>
+        <ModelCommentProfile>ActiveX Control Members</ModelCommentProfile>
+        <SpecificModelComments Name="" Description=""/>
+    </ModelComments>
+    <IgnoreRelationships/>
+</DocumentXSettings>
+
