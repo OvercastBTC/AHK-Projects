@@ -2,8 +2,9 @@
 	; Updated to AutoHotkey v2 (2.0.10)
 	; Author (OG): Pulover
 	; Link: https://github.com/Pulover/CbAutoComplete
-	; Author (v2-beta): unk
-	; Author (v2): OvercastBTC
+	; Author (v2-beta): Ark565 (& others)
+	; Link: https://www.reddit.com/r/AutoHotkey/s/4InT1j8Mro
+	; Author (v2): OvercastBTC (updates to v2 2.0.10)
 
 
 	AutoComplete(ComboBox, entriesList) {
