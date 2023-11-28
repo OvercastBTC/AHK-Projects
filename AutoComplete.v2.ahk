@@ -1,6 +1,7 @@
 	; https://github.com/Pulover/CbAutoComplete
 	; Updated to AutoHotkey v2 (2.0.10)
 	; Author (OG): Pulover
+	; Link: https://github.com/Pulover/CbAutoComplete
 	; Author (v2-beta): unk
 	; Author (v2): OvercastBTC
 
