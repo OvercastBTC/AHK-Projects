@@ -1,5 +1,9 @@
 	; https://github.com/Pulover/CbAutoComplete
-	; Rewritten for AutoHotkey v2
+	; Updated to AutoHotkey v2 (2.0.10)
+	; Author (OG): Pulover
+	; Author (v2-beta): unk
+	; Author (v2): OvercastBTC
+
 
 	AutoComplete(ComboBox, entriesList) {
 	; CB_GETEDITSEL = 0x0140, CB_SETEDITSEL = 0x0142
