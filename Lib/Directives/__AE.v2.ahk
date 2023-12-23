@@ -40,7 +40,6 @@ _AE_DetectHidden(true)
 _AE_SetDelays(-1)
 _AE_PerMonitor_DPIAwareness()
 ; --------------------------------------------------------------------------------
-;@Ahk2Exe-IgnoreBegin
 /**
  * Function: Includes
  */
@@ -53,17 +52,17 @@ _AE_PerMonitor_DPIAwareness()
 #Include <Extensions\Sort>
 #Include <Extensions\String>
 #Include <Tools\Info>
-;@Ahk2Exe-IgnoreEnd
-
-#HotIf WinActive(A_ScriptName)
-	~^s:: Run(A_ScriptName)
-#HotIf
-; --------------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+toggleCapsLock()
+{
+	SetCapsLockState(!GetKeyState('CapsLock', 'T'))
+}
+; ---------------------------------------------------------------------------
 _AE_DetectHidden(bool?)
 {
-    bool := true
+	bool := true
 	DetectHiddenText(bool)
-    DetectHiddenWindows(bool)
+	DetectHiddenWindows(bool)
 }
 ; --------------------------------------------------------------------------------
 _AE_SetDelays(n?) {
@@ -77,12 +76,15 @@ _AE_PerMonitor_DPIAwareness()
 {
 	MaximumPerMonitorDpiAwarenessContext := VerCompare(A_OSVersion, ">=10.0.15063") ? -4 : -3
 	Global DefaultDpiAwarenessContext := MaximumPerMonitorDpiAwarenessContext, A_DPI := DefaultDpiAwarenessContext
-	try
+	try{
 		DllCall("SetThreadDpiAwarenessContext", "ptr", MaximumPerMonitorDpiAwarenessContext, "ptr")
-	catch 
+	}
+	catch{ 
 		DllCall("SetThreadDpiAwarenessContext", "ptr", -4, "ptr")
-	else
+	}
+	else {
 		DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
+	}
 	return A_DPI
 }
 __AE_CopyLib() {
@@ -175,9 +177,6 @@ AE_Get_TEXTLIMIT(*)
 	; Return Limit
 }
 
-
-
-
 Class AE {
 
 	; --------------------------------------------------------------------------------
@@ -206,4 +205,58 @@ Class AE {
             DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
         return A_DPI
 	}
+}
+
+; --------------------------------------------------------------------------------
+;              Ctrl+s Reload AutoHotKey Scripts (to test/load changes)
+; --------------------------------------------------------------------------------
+#HotIf WinActive(" - Visual Studio Code")
+	; ~^s::ReloadAllAhkScripts()
+	~^s::Reload()
+#HotIf
+; --------------------------------------------------------------------------------
+; --------------------------------------------------------------------------------
+;                Ctrl+Shift+Alt+r Reload AutoHotKey Script (to load changes)
+; --------------------------------------------------------------------------------
+^+!r::ReloadAllAhkScripts()
+ReloadAllAhkScripts()
+{
+	DetectHiddenWindows(true)
+	static oList := WinGetList("ahk_class AutoHotkey",,,)
+	aList := Array()
+	List := oList.Length
+	For v in oList
+	{
+		aList.Push(v)
+	}
+	scripts := ""
+	Loop aList.Length
+		{
+			title := WinGetTitle("ahk_id " aList[A_Index])
+			;PostMessage(0x111,65414,0,,"ahk_id " aList[A_Index])
+			; dnrList := [A_ScriptName, "Scriptlet_Library"]
+			; rmList := InStr(title, "Scriptlet_Library", false)
+			
+			; ; If (title = A_ScriptName) || (title = "Scriptlet_Library"){
+			; If (title = "Scriptlet_Library"){
+			; 	continue
+			; }
+			PostMessage(0x111,65400,0,,"ahk_id " aList[A_Index])
+			; Note: I think the 654*** is for v2 => avoid the 653***'s
+			; [x] Reload:		65400
+			; [x] Help: 		65411 ; 65401 doesn't really work or do anything that I can tell
+			; [x] Spy: 			65402
+			; [x] Pause: 		65403
+			; [x] Suspend: 		65404
+			; [x] Exit: 		65405
+			; [x] Variables:	65406
+			; [x] Lines Exec:	65407 & 65410
+			; [x] HotKeys:		65408
+			; [x] Key History:	65409
+			; [x] AHK Website:	65412 ; Opens https://www.autohotkey.com/ in default browser; and 65413
+			; [x] Save?:		65414
+			; Don't use these => ;//static a := { Open: 65300, Help:    65301, Spy: 65302, XXX (nonononono) Reload: 65303 [bad reload like Reload()], Edit: 65304, Suspend: 65305, Pause: 65306, Exit:   65307 }
+			; scripts .=  (scripts ? "`r`n" : "") . RegExReplace(title, " - AutoHotkey v[\.0-9]+$")
+			scripts .=  (scripts ? "`r`n" : "") . RegExReplace(title, " - AutoHotkey v[\.0-9]+$")
+		}
 }

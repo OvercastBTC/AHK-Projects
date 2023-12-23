@@ -1,0 +1,56 @@
+{
+	"Adam's Awesome Elect. Rec": {
+		"hazard": "",
+		"recommendation": "Good Information See DS",
+		"technical detail": "",
+		"title": "Really Good Title"
+	},
+	"Askdjfhlkasjdhfkjashdf": {
+		"hazard": "asdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudf",
+		"recommendation": "asdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudf",
+		"technical detail": "asdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudfasdfasdfasdfasdfasdfsaliajsudhfiahdfiewhrfiherifhiausdhfiuashdfhasiudf",
+		"title": "asdfasdfasdfasdf"
+	},
+	"He-electrical": {
+		"hazard": "",
+		"recommendation": "[- Design -]\nSingle feed, to 13.8 kV switchgear; additional 13.8 kV swgr direct tie. Stepped down to 4160 and 2400 as needed\n\n[- Notes -]\n- Arc flash event 2\/2019 in ER20.\n- Main xfmr's oil was filtered in 2022 - tested-filtered-retested. DGA retest noted - No history - due to filtering.\n- Arc-flas: 2019\n- Swgr Replcmnt Proj: Started 2022\n\n[- Special Note -] (AJB - 04\/2023)\nThe site was unable to validate the following statement included in a previous RR:\n- The K2 DC drive was found to have an undersized breaker and was reportedly followed-up on by the plant immediately.\n\n[- Xfmrs (>5MVA) -]\nOwn (U | C): U\n[Online]\nVis: D\nIR: A\nDGA\/O: A\n[Offline]\nTesting: 3 yr\nLast 2022\nPrior: No\n[5-4:Tbl 2]\nLast:\nPrev:\n\n[- Xfmrs (<5MVA) -]\nOwn (U | C): U\n[Online]\nVis: D\nIR: A\nDGA\/O: A\n[Offline]\nTesting: 3 yr\n[5-20: Table 6]\nLast: 2022\nPrev: No History\n\n[- MV Swgr -]\n[Online]\nVis: W\nIR: A\nPD: No\nC\/C\/D\/T: No\n[Offline]\nC\/I\/E: A\n[Bkr Testing]\nTbl 1a: 3yr\nTbl 1b: 3yr\nRelay Testing: 3yr\n[Tbl 1a]\nLast: 2022\nPrev: 2019\n\n[- Batts -]\nDate Code: 5\/2021\nC\/D\/T: No\nCool: No\n[Online]\nIR: No\nVis: M\nW\/T: M\nCapacitance (Internal Ohmic): No\n[Offline]\nCapacity: No\n[Rmt Mon]\nTemp: No\nLow Voltage: No\n\n[- LV Swgr -]\n[Online]\nVis: W\nIR: A\nC\/D\/T: Y\nClean: Ok\n[Offline]\nC\/I\/E: A\n[5-20:Tbl 1]\nLast: 2022\nPrev: 2019\n\n[- EDG -] (quarry portable crusher)\nITM: S\/A, A\nNo Loads: W\nLoad Xfr: M\nLoad Bank: A\nBatts: @5yrs",
+		"technical detail": "",
+		"title": "Human Element - Electrical Section"
+	},
+	"Hot Work - Create": {
+		"hazard": "",
+		"recommendation": "I mean it, really use the system please.",
+		"technical detail": "You should really use it. We have nice permits.",
+		"title": "Use the hot work system."
+	},
+	"Rec Name 2": {
+		"hazard": "hazard 2",
+		"recommendation": "recommendation 2",
+		"technical detail": "tech detail 2",
+		"title": "Title 2"
+	},
+	"TestRecName": {
+		"hazard": "Test Hazard",
+		"recommendation": "Test Recommendation",
+		"technical detail": "Test Technical Detail",
+		"title": "Test Title"
+	},
+	"This Is A Test": {
+		"hazard": "This is the hazard of the recommendation of the title",
+		"recommendation": "this is a recommendation of a test of the title test 5-19, Switchgear and Circuit Breakers",
+		"technical detail": "this is the technical detail of the recommendation of the title of a test, \"This is a Test\"",
+		"title": "This is the title of a test."
+	},
+	"Update The Five Year Electrical System Studies.": {
+		"hazard": "Circuit breakers are critical safety devices. Failure of a circuit breaker to trip will allow the electrical fault to persist and damage downstream equipment, jeopardize personnel safety, and cause electrical system instability. Electrical system studies will ensure the electrical system is appropriately aligned to interrupt the fault.",
+		"recommendation": "Perform the fault current and protection coordination studies per FM Global Property Loss Prevention Data Sheet 5-20, ^iElectrical Testing^i.\n\n\t\t\t\tAs an alternative, an arc-flash hazard analysis (or arc flash study) meets the intent of the recommendation. Please see the technical detail section for additional information.\n\n\t\t\t\t^iNote: There is no impact to production as these studies are performed while online.^i",
+		"technical detail": "^b^uStudies and Alternative Names:^b^u\n\t\t\t\t- Short circuit\/fault current\n\t\t\t\t- protection coordination\/selective tripping\n\t\t\t\t- arc-flash hazard analysis\/arc-flash study\n\n\t\t\t\t^b^uPrimary Studies:^b^u\n\t\t\t\t^bArc-Flash:^b\n\t\t\t\t- The final product is based on information obtained from the fault current and coordination studies.\n\t\t\t\t- The final product also generates a system diagram (single-line) similar to the as-built electrical single-line diagram. It is common to use the system diagram to review and update the as-built single line diagram, and is usually a service provided by the performing vendor.\n\t\t\t\t^bSelective Tripping:^b\n\t\t\t\t- The selective tripping, or coordination study, determines the extent of over-current protective device coordination within an electrical system.\n\t\t\t\t- The intent is when a fault occurs anywhere in the system, the current interruption device closest to the fault will actuate and isolate the fault.\n\t\t\t\t^bFault Current:^b\n\t\t\t\t- The fault current study determines the ability of each component within an electrical system to withstand and\/or interrupt the system and fault currents.\n\n\t\t\t\t^bGeneral Guidance:^b\n\t\t\t\t- An electrical vendor is the best resource for the overall accomplishment of this recommendation. Should their guidance differ from this recommendation, please reach out to FM Global prior to implementation.\n\t\t\t\t- The standard industry periodicity is once every five years. However, an effective management of change (MOC) program can capture any changes made, and thereby identify any needed modifications required, to the protection device(s) of the electrical infrastructure.\n\n\t\t\t\t^b^uAdditional Secondary Study:^b^u\n\t\t\t\t^bLoad Balancing:^b\n\t\t\t\t- Load-balancing studies ensure loads are balanced across all three phases. This prevents damage, or additional wear, on particularly susceptible components such as motors and electronics (PLCs\/circuit cards).\n\t\t\t\t- Another factor to consider: unbalanced loads can affect the site power factor and increase electricity costs.\n\t\t\t\t- This study is normally performed during initial construction and commissioning of the electrical infrastructure; as needed, it is also performed when changes occur.\n\t\t\t\t^iNote: This study is an industry best practice, and not required to complete this recommendation, but is highly recommended, and can be completed at the same time.^i",
+		"title": "Update the five year electrical system studies."
+	},
+	"[- Design -]": {
+		"hazard": "",
+		"recommendation": "",
+		"technical detail": "",
+		"title": ""
+	}
+}

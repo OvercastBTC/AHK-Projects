@@ -1,0 +1,26 @@
+{
+	"Adam's Awesome Elect. Rec": {
+		"hazard": "",
+		"recommendation": "Good Information See DS",
+		"technical detail": "",
+		"title": "Really Good Title"
+	},
+	"Hot Work - Create": {
+		"hazard": "",
+		"recommendation": "I mean it, really use the system please.",
+		"technical detail": "You should really use it. We have nice permits.",
+		"title": "Use the hot work system."
+	},
+	"Rec Name 2": {
+		"hazard": "hazard 2",
+		"recommendation": "recommendation 2",
+		"technical detail": "tech detail 2",
+		"title": "Title 2"
+	},
+	"TestRecName": {
+		"hazard": "Test Hazard",
+		"recommendation": "Test Recommendation",
+		"technical detail": "Test Technical Detail",
+		"title": "Test Title"
+	}
+}
