@@ -34,10 +34,14 @@ Persistent(1)
 #Include <Tools\Info>
 ; #Include <Misc\Out>
 #Include <System\UIA>
+#Include <_GuiReSizer>
+
 ; ---------------------------------------------------------------------------
-;; @Ahk2Exe-AddResource %A_ScriptDir%\RTE.v2\Project Files\RichEdit_Editor_v2.ahk, 1
+; ; @Ahk2Exe-AddResource %A_ScriptDir%\RTE.v2\Project Files\RichEdit_Editor_v2.ahk, 1
+; @Ahk2Exe-AddResource RichEdit_Editor_v2.exe
 ; #Include %A_ScriptDir%\RTE.v2\Project Files\RichEdit_Editor_v2.ahk
-#Include <RRTE.v2\Project Files\RichEdit_Editor_v2>
+; #Include <RRTE.v2\Project Files\RichEdit_Editor_v2>
+; #Include *i %A_ScriptDir%\Lib\RRTE.v2\Project Files\RichEdit_Editor_v2.ahk
 ; ---------------------------------------------------------------------------
 /************************************************************************
  * ;Description ...: Create Tray Icon
@@ -49,6 +53,9 @@ Persistent(1)
 TraySetIcon('HICON:' Create_HznHorizon_ico())
 ; ---------------------------------------------------------------------------
 #Include <__A_Process.v2> ;! needs to be here AFTER the TraySetIcon => Icon disabled in A_Process
+#Include <Class\JSON\jsongo.v2>
+#Include <Includes\Includes_Runner>
+#Include <Includes\Includes_Extensions>
 ; Check_Startup_Status()
 ; ---------------------------------------------------------------------------
 /************************************************************************
@@ -85,7 +92,7 @@ TraySetIcon('HICON:' Create_HznHorizon_ico())
 ; #HotIf WinActive('ahk_exe hznhorizon.exe')
 ; #HotIf
 ; ---------------------------------------------------------------------------
-; #HotIf WinActive('ahk_exe hznhorizon.exe')
+#HotIf WinActive('ahk_exe hznhorizon.exe')
 tab::Suspend(1), WinGetTitle(ControlGetFocus('A')) ~= 'i)txttextbox' ? HznSendTabSC() : HznTab(), Suspend(0)
 ; ---------------------------------------------------------------------------
 F5::button(120) 			; find (focused tab) and find/replace
@@ -131,7 +138,7 @@ F7::button(117)			; spell check
 ; ---------------------------------------------------------------------------
 ^+c::HznGetText()
 ; ---------------------------------------------------------------------------
-^+v::HznPaste()
+^!v::HznPaste()
 *^s::HznSave()
 ; ^F4::HznClose() 		; fix [] => need to only be on certain screen(s).
 ^n::HznNew()
@@ -140,53 +147,350 @@ F7::button(117)			; spell check
 ; ^+9::HznEnableButtons(hTb := HznToolbar._hTb()) ; works!!!
 #HotIf
 HznNew(){
-	SendLevel(1), BlockInput(1), fCtl := ControlGetFocus('A'), ClassNN := ControlGetClassNN(fCtl), WinT := WinGetTitle('A'), button_new := ''
-	try button_new := ControlGetClassNN('New Standard')
-	try button_new := ControlGetClassNN('New')
+	_AE_bInpt_sLvl(1), fCtl := ControlGetFocus('A'), ClassNN := ControlGetClassNN(fCtl), WinT := WinGetTitle('A'), bNew := ''
+	try bNew := ControlGetClassNN('New Standard')
+	try bNew := ControlGetClassNN('New')
 	; (button_new = '') ? HznSave_Icon() : ControlClick(button_new)
-	ControlClick(button_new)
-	BlockInput(0), SendLevel(0)
+	ControlClick(bNew)
+	_AE_bInpt_sLvl(0)
+}
+class testjson extends Paths {
+	static testdirname := 'WriteFileTest'
+	static testdir := Paths.Lib '\' this.testdirname
+	static json_dir := this.testdir
+	static json_dirname := this.json_dir '\WriteToJSONTest'
+	static jsongo_dirname := this.json_dir '\WriteToJSONGOTest'
 }
 ^+9::Lookie()
-Lookie(){
-	SetTimer(Tool,100)
-	tool(){
-		MouseGetPos(,,&mWin, &mCtl,3)
-		WinA := WinActive('A')
-		WinC := WinGetClass(WinA)
-		WinT := WinGetTitle(WinA)
-		CmWin := WinGetClass(mWin)
-		ClassNN := ''
-		try ClassNN := ControlGetClassNN(mCtl)
-		Try {
-			MyTV := RemoteTreeView(mWin)
+lookie(){
+	fCtl := 0, ahWnd := 0, WinPID := 0, WinID := 0, WinpE := 0, hHzn := 0, WinE := 0, WinA := 0
+	nCtl := '', WinPN := '', WinT := '', Hzn := '',  gaWinT := '', text := '', state := '', visible := '', style := '', exstyle := '',
+	name := '',  item := '', hJson := '', ClassNN := '', WinC := '', list := '', fname := '', json_dir := '', json_dir_fname:='', 
+	hznArray := [], items := [], hznMapArray := []
+	hznMap 	 := Map(), hznAMap := Map()
+	; ---------------------------------------------------------------------------\
+	static json_dir := testjson.json_dir
+	static json_dirname := testjson.json_dirname
+	static jsongo_dirname := testjson.jsongo_dirname
+	; ---------------------------------------------------------------------------
+	default_fname := ('test' format(A_Now, 'YYYY.MM.DD') '.jsonc')
+	Hzn := 'ahk_exe hznHorizon.exe'
+	hHzn := WinWaitActive(Hzn)
+	try fCtl := ControlGetFocus('A')
+	try nCtl := ControlGetClassNN(fCtl)
+	WinE := WinExist('ahk_exe hznHorizon.exe')
+	WinA := WinActive('A')
+	try WinPN := WinGetProcessName(WinA)
+	try WinPID := WinGetPID('ahk_exe ' WinPN)
+	try WinID := WinGetID(WinPID)
+	try WinpE := WinExist(WinID)
+	try {
+		hGetAncestor := DllCall("GetAncestor", "UInt", hHzn, "Uint", 2)
+		hGApID := WinGetProcessName(hGetAncestor)
+		hWinE := WinExist(hGetAncestor)
+		; WinT := WinGetTitle(hGetAncestor)
+		gaWinT := WinGetTitle(hWinE)
+	}
+	try WinT := WinGetTitle(WinActive('A'))
+	; ---------------------------------------------------------------------------
+	; Infos(WinpA '`n' WinT)
+	; Infos(
+		; 	'f: ' fCtl
+		; 	'`n'
+		; 	'n: ' nCtl
+		; 	'`n'
+	; 	'a: ' WinA
+	; 	'`n'
+	; 	'Proc: ' WinPN
+	; 	'`n'
+	; 	'pID: ' WinPID
+	; 	'`n'
+	; 	'pIDExist: ' WinpE
+	; 	'`n'
+	; 	'WinT: ' WinT
+	; 	'`n'
+	; 	'hGetAncestor: ' hGetAncestor
+	; 	'`n'
+	; 	'hGApID: ' hGApID
+	; 	'`n'
+	; 	'gaWinT: ' gaWinT
+	; )
+	; ---------------------------------------------------------------------------
+	name := StrSplit(WinT, '  ', '  ' ,2)
+	; fname := StrSplit(WinT, ' ',,3)
+	fname := StrSplit(name[1], ' - ' ,,3)
+		; ---------------------------------------------------------------------------
+	; try Infos(
+	; 		name[1]
+	; 		'`n'
+	; 		name[2]
+	; 		; fname[3]
+	; 	)
+	; ---------------------------------------------------------------------------
+	; fname := strsplit(fname[2], ' ',2)
+	fname[2] := RegExReplace(fname[2], ' ','-')
+	static jsonfname := fname[2] '.jsconc'
+	; MsgBox(jsonfname,,3).OnEvent('Cancel', Exit())
+	; ---------------------------------------------------------------------------
+	json_dir_fname := (json_dirname '\' jsonfname)
+	jsongo_dir_fname := (jsongo_dirname '\' jsonfname)
+	dirArray := [json_dirname, jsongo_dirname]
+	fileArray := [json_dir '\' jsonfname, json_dir_fname, jsongo_dir_fname]
+	result := '', text := '', existsArray:= []
+	; ---------------------------------------------------------------------------
+	hznArray := WinGetControlsHwnd(WinT)
+	; try Infos(fname[1] '`n' fname[2] '`n' fname[3])
+	; hznArray := WinGetControlsHwnd(WinA)
+	; ---------------------------------------------------------------------------
+	for each,value in dirArray {
+		If result := !DirExist(value) {
+			DirCreate(value)
 		}
-		ClassNN = '' ? NoClassNN_ToolTip() : NoClassNN_ToolTip()
-		NoClassNN_ToolTip(){
-			ToolTip(
-				'WinA: ' WinA
-				'`n'
-				'WinC: ' WinC
-				'`n'
-				'WinT: ' WinT
-				'`n'
-				'MyTv: ' MyTV.GetControlContent()
-			)
+		(result = 0) ? result := 'Dir Exists' : result := 'Dir Created'
+		existsArray.Push(value ': ' result)
+		; Infos(result)
+	}
+	for each, value in fileArray {
+		if result := !FileExist(value) {
+			AppendFile(value, text)
 		}
-		ClassNN_ToolTip(){
-			ToolTip(
-				'WinA: ' WinA
+		(result = 0) ? result := 'File Exists' : result := 'File Created'
+		existsArray.Push(value ': ' result)
+		; Infos(result)
+	}
+	var := _ArrayToString(existsArray, ',`n')
+	Infos(var)
+	; ---------------------------------------------------------------------------
+	for each, ahWnd in hznArray{
+		try {
+			ClassNN := ControlGetClassNN(ahWnd)
+			SafeSet(hznAMap,ClassNN, ahWnd)
+		} catch {
+			WinC := WinGetClass(ahWnd)
+			SafeSet(hznAMap,ClassNN, ahWnd)
+		}
+		SafeSetMap(hznAMap,hznMAP)
+		for key, value in hznAMap {
+			list .= key ' ' value '`n'
+			hznMapArray.Push(key)
+			hznMapArray.Push(value)
+		}
+		a2s := hznMapArray.ToString()
+		Infos(a2s)
+		AppendFile((testjson.testdir '\' fname[1] '.ahk'), a2s)
+	; }	
+		return
+		DPI.WinGetPos(&wX,&wY,&wW,&wH,ahWnd)
+		try state := ControlGetEnabled(ahWnd)
+		; ---------------------------------------------------------------------------
+		if ((state != 0) &&	(wW != 0 || wH != 0)) {
+			try visible := ControlGetVisible(ahWnd)
+			if (visible != 0) {
+				try {
+					style := ControlGetStyle(ahWnd)
+					style := Format("0x{:08x}", style)
+					if (ClassNN ~= 'i)button') {
+						style := styleconverter(style)
+					}
+				}	
+				; } catch {
+				; 	style := WinGetStyle(ahWnd)
+				; 	style := Format("0x{:08x}", style)
+				; }
+				try exstyle := ControlGetExStyle(ahWnd)
+				try exstyle := Format("0x{:08x}", exstyle)
+				try text := '`n' ControlGetText(ahWnd)
+				try items := ControlGetItems(ahWnd)
+				try for each, item in items {
+					; DrawBorder(ahWnd)
+					; Infos(
+						; OutputDebug(
+						; 	'C: ' ClassNN ' L[' items.Length '] ' item
+						; 	'`n'
+						; )
+						; test := (value != 'No' || 'Yes' || '')
+						; if test = 0 {
+							; 	test := 'false'
+							; } else {
+								; 	test := 'true'
+								; }
+								; Infos('test: ' test)
+								; if (value != '' || value != ' ' || value != '`t' || value != 'No' || value != 'Yes'){
+									; 	A_Clipboard := value
+									; 	try name := GetKeyName(value)
+									; 	Infos('[' value ']' name)
+									; KeyWait('RAlt', 'D')
+									; Infos.DestroyAll()
+									; }
+				}
+				(text = '`n') ? text := text '(no text)' : text
+				; OutputDebug(
+				; 	ClassNN
+				; 	text
+				; 	'`n'
+				; 	'S[' state ']' 
+				; 	' Vis[' visible ']'
+				; 	' st[' style ']'
+				; 	' exst[' exstyle ']'
+				; 	'`n'
+				; 	'wX: ' wX
+				; 	' wY: ' wY
+				; 	' wW: ' wW
+				; 	' wH: ' wH
+				; 	'`n'
+				; )
+				; OutputDebug(toJson)
+				; DrawBorder(ahWnd)
+				; KeyWait('RAlt', 'D')
+			}
+		}
+		; ---------------------------------------------------------------------------
+		toJson := (	
+				ClassNN
+				' S[' state ']' 
+				' Vis[' visible ']'
+				' st[' style ']'
+				' exst[' exstyle ']'
 				'`n'
-				'WinC: ' WinC
+				'wX: ' wX
+				' wY: ' wY
+				' wW: ' wW
+				' wH: ' wH
 				'`n'
-				'WinT: ' WinT
-				'`n'
-				'Control: ' ClassNN ' (' mCtl ')'
-				'`n'
-				'MyTv: ' MyTV.GetControlContent()
+				text
 			)
+		hJson .= toJson
+		if ((wW != 0 || wH != 0) && (visible != 0) ) {
+			try {
+				hznClass := ControlGetClassNN(value)
+				hznMap.Set(hznClass, value)
+			}
 		}
 	}
+	; ---------------------------------------------------------------------------
+	for key, value in hznMap {
+		DPI.WinGetPos(&wX,&wY,&wW,&wH,value)
+		try visible := ControlGetVisible(value)
+		if ((wW != 0 || wH != 0) && (visible != 0) ) {
+			try text := '`n' ControlGetText(value)
+			try state := ControlGetEnabled(value)
+			; try visible := ControlGetVisible(value)
+			if (text = '`n'){
+				text := ''
+			}
+			if state != 0 {
+				; Infos(
+				; OutputDebug(
+				; 	'[' state '] '
+				; 	key ' (' value ')'
+				; 	' wX: ' wX
+				; 	' wY: ' wY
+				; 	' wW: ' wW
+				; 	' wH: ' wH
+				; 	text
+				; 	'`n'
+				; )
+				; DrawBorder(value)
+				; KeyWait('RAlt', 'D')
+			}
+		}
+		; Infos.DestroyAll()
+		; Infos(hznClassNN ' (' value ')')
+		; Try {
+		; 	hznClass := ControlGetClassNN(value)
+		; }
+		; Catch {
+		; 	hznClass := WinGetClass(value)
+		; }
+		; Infos(hznClass)
+		; DrawBorder(value)
+		; KeyWait('LAlt','D')
+		; Infos.DestroyAll()
+	}
+	hznCtlJson := jsongo._Stringify(hznMap,'','`t', true)
+	; if FileExist(fname[2] '.jsonc') {
+	; 	FileDelete(fname[2] '.jsonc')
+	; }
+
+	ApplyJson() => WriteFile(A_ScriptDir '\WriteToJSONTest\' fname[2] '.jsconc', json.stringify(hznMap,,'`t', true))
+	AppendFile(A_ScriptDir '\WriteToJSONGOTest\' fname[2] '.jsonc',hznCtlJson)
+	; OutputDebug(hznCtlJson)
+	DrawBorder(WA:=WinActive("A")){
+		Static OS:=3
+		Static BG:="FF0000"
+		Static myGui:=Gui("+AlwaysOnTop +ToolWindow -Caption","GUI4Border")
+		myGui.BackColor:=BG
+		; WA:=WinActive("A")
+		If WA && !WinGetMinMax(WA) && !WinActive("GUI4Border ahk_class AutoHotkeyGUI"){
+			DPI.WinGetPos(&wX,&wY,&wW,&wH,WA)
+			myGui.Show("x" wX " y" wY " w" wW " h" wH " NA")
+			Try WinSetRegion("0-0 " wW "-0 " wW "-" wH " 0-" wH " 0-0 " OS "-" OS " " wW-OS
+			. "-" OS " " wW-OS "-" wH-OS " " OS "-" wH-OS " " OS "-" OS,"GUI4Border")
+		}
+		; }Else{
+		; 	myGui.Hide()
+		; }
+	}
+	; hGui := Gui(fCtl)
+	; hGui := Gui(rCtl)
+	; text := RichEdit(hGui,'',true).GetRTF()
+	; OutputDebug(
+	; 	; 'rCtl: ' rCtl
+	; 	'`n'
+	; 	'Control: ' nCtl
+	; 	' (' fCtl ')'
+	; 	'`n'
+	; 	'text:`n' text
+	; )
+	; SaveToJson(*) {		
+	; 	hznMap.Set(WinT, Map("title", Saved.RecTitle,	"recommendation", Saved.RecText, "hazard", Saved.RecHazard, "technical detail", Saved.RecTechDetail))
+		
+	; 	this.ApplyJson()
+	; }
+
+	styleconverter(style){
+		StyleMap := Map(
+			0x6 , 'BS_AUTO3STATE' ; Creates a button that is the same as a three-state check box, except that the box changes its state when the user selects it. The state cycles through checked, indeterminate, and cleared.
+			,
+			0x3 , 'BS_AUTOCHECKBOX' ; Creates a button that is the same as a check box, except that the check state automatically toggles between checked and cleared each time the user selects the check box.
+			,
+			0x9 , 'BS_AUTORADIOBUTTON'	; Creates a button that is the same as a radio button, except that when the user selects it, the system automatically sets the button's check state to checked and automatically sets the check state for all other buttons in the same group to cleared.
+			,
+			0x100 , 'BS_LEFT' ; +/-Left. Left-aligns the text.
+			,
+			0x0 , 'BS_PUSHBUTTON' ; Creates a push button that posts a WM_COMMAND message to the owner window when the user selects the button.
+			,
+			0x1000 , 'BS_PUSHLIKE' ; Makes a checkbox or radio button look and act like a push button. The button looks raised when it isn't pushed or checked, and sunken when it is pushed or checked.
+			,
+			0x200 , 'BS_RIGHT' ; +/-Right. Right-aligns the text.
+			,
+			0x20 , 'BS_RIGHTBUTTON' ; +Right (i.e. +Right includes both BS_RIGHT and BS_RIGHTBUTTON, but -Right removes only BS_RIGHT, not BS_RIGHTBUTTON). Positions a checkbox square or radio button circle on the right side of the control's available width instead of the left.
+			,
+			0x800 , 'BS_BOTTOM' ; Places the text at the bottom of the control's available height.
+			,
+			0x300 , 'BS_CENTER' ; +/-Center. Centers the text horizontally within the control's available width.
+			,
+			0x1 , 'BS_DEFPUSHBUTTON' ; +/-Default. Creates a push button with a heavy black border. If the button is in a dialog box, the user can select the button by pressing Enter, even when the button does not have the input focus. This style is useful for enabling the user to quickly select the most likely option.
+			,
+			0x2000 , 'BS_MULTILINE' ; +/-Wrap. Wraps the text to multiple lines if the text is too long to fit on a single line in the control's available width. This also allows linefeed (`n) to start new lines of text.
+			,
+			0x4000 , 'BS_NOTIFY' ; Enables a button to send BN_KILLFOCUS and BN_SETFOCUS notification codes to its parent window. Note that buttons send the BN_CLICKED notification code regardless of whether it has this style. To get BN_DBLCLK notification codes, the button must have the BS_RADIOBUTTON or BS_OWNERDRAW style.
+			,
+			0x400 , 'BS_TOP' ; Places text at the top of the control's available height.
+			,
+			0xC00 , 'BS_VCENTER' ; Vertically centers text in the control's available height.
+			,
+			0x8000 , 'BS_FLAT' ; Specifies that the button is two-dimensional; it does not use the default shading to create a 3-D effect.
+			,
+			0x7 , 'BS_GROUPBOX' ; Creates a rectangle in which other controls can be grouped. Any text associated with this style is displayed in the rectangle's upper left corner.
+		)
+		for key, value in StyleMap {
+			if style ~= key {
+				return value
+			}
+		}
+	}
+
 }
 
 ; ---------------------------------------------------------------------------
@@ -260,7 +564,6 @@ HznSave_Icon(){
 	Loop (WinC != 'SSMenu') {
 		Sleep(15)
 	} Until (WinC = 'SSMenu')
-	; SendEvent('{LAlt Up}{Enter}')
 	SendEvent('{LAlt Up}')
 	try ControlClick('Save')
 	try SendEvent('{Enter}')
@@ -341,7 +644,8 @@ HznGetText(*)
 	hRect := []
 	fname := ''
 	hHzn := ''
-	static hCtl := ControlGetFocus('A')
+	; static hCtl := ControlGetFocus('A')
+	hCtl := ControlGetFocus('A')
 	static nCtl := ControlGetClassNN(hCtl)
 	static hCtl_title := WinGetTitle()
 	static hHzn := WinExist('ahk_exe hznHorizon.exe')
@@ -470,7 +774,8 @@ HznGetText(*)
 	; 	; Run(hznRTE)
 	; 	RTE()
 	; }
-	RTE()
+	Run(A_ScriptName ' /script RichEdit_Editor_v2.exe')
+	; RTE()
 	; hRTE := WinWaitActive('hznRTE ')
 	hRTE := WinExist(RTE_Title)
 	pid_RTE := WinGetPID(hRTE)
@@ -479,7 +784,8 @@ HznGetText(*)
 	; Infos(ControlGetClassNN(ControlFocus('A')))
 	; SendMessage(0x0302, 0, 0, hRTE)
 	; clip_it()
-	Send('^+v')
+	; Send('^+v')
+	Send('^v')
 	; Infos(ControlGetClassNN(ControlGetFocus('A')))
 	reCtl := (ControlGetClassNN(ControlGetFocus('A')))
 	; AE_Select_End()
@@ -1259,243 +1565,243 @@ class RemoteTreeView
     ; Ahk_user (Conversion to V2)
 
     ; Constants for TreeView controls   
-        WC_TREEVIEW := "SysTreeView32"
+    static WC_TREEVIEW := "SysTreeView32",
         ; Messages =============================================================================================================
-        TVM_CREATEDRAGIMAGE := 0x1112    ; (TV_FIRST + 18)
-        TVM_DELETEITEM := 0x1101    ; (TV_FIRST + 1)
-        TVM_EDITLABELA := 0x110E    ; (TV_FIRST + 14)
-        TVM_EDITLABELW := 0x1141    ; (TV_FIRST + 65)
-        TVM_ENDEDITLABELNOW := 0x1116    ; (TV_FIRST + 22)
-        TVM_ENSUREVISIBLE := 0x1114    ; (TV_FIRST + 20)
-        TVM_EXPAND := 0x1102    ; (TV_FIRST + 2)
-        TVM_GETBKCOLOR := 0x112F    ; (TV_FIRST + 31)
-        TVM_GETCOUNT := 0x1105    ; (TV_FIRST + 5)
-        TVM_GETEDITCONTROL := 0x110F    ; (TV_FIRST + 15)
-        TVM_GETEXTENDEDSTYLE := 0x112D    ; (TV_FIRST + 45)
-        TVM_GETIMAGELIST := 0x1108    ; (TV_FIRST + 8)
-        TVM_GETINDENT := 0x1106    ; (TV_FIRST + 6)
-        TVM_GETINSERTMARKCOLOR := 0x1126    ; (TV_FIRST + 38)
-        TVM_GETISEARCHSTRINGA := 0x1117    ; (TV_FIRST + 23)
-        TVM_GETISEARCHSTRINGW := 0x1140    ; (TV_FIRST + 64)
-        TVM_GETITEMA := 0x110C    ; (TV_FIRST + 12)
-        TVM_GETITEMHEIGHT := 0x111C    ; (TV_FIRST + 28)
-        TVM_GETITEMPARTRECT := 0x1148    ; (TV_FIRST + 72) ; >= Vista
-        TVM_GETITEMRECT := 0x1104    ; (TV_FIRST + 4)
-        TVM_GETITEMSTATE := 0x1127    ; (TV_FIRST + 39)
-        TVM_GETITEMW := 0x113E    ; (TV_FIRST + 62)
-        TVM_GETLINECOLOR := 0x1129    ; (TV_FIRST + 41)
-        TVM_GETNEXTITEM := 0x110A    ; (TV_FIRST + 10)
-        TVM_GETSCROLLTIME := 0x1122    ; (TV_FIRST + 34)
-        TVM_GETSELECTEDCOUNT := 0x1146    ; (TV_FIRST + 70) ; >= Vista
-        TVM_GETTEXTCOLOR := 0x1120    ; (TV_FIRST + 32)
-        TVM_GETTOOLTIPS := 0x1119    ; (TV_FIRST + 25)
-        TVM_GETUNICODEFORMAT := 0x2006    ; (CCM_FIRST + 6) CCM_GETUNICODEFORMAT
-        TVM_GETVISIBLECOUNT := 0x1110    ; (TV_FIRST + 16)
-        TVM_HITTEST := 0x1111    ; (TV_FIRST + 17)
-        TVM_INSERTITEMA := 0x1100    ; (TV_FIRST + 0)
-        TVM_INSERTITEMW := 0x1142    ; (TV_FIRST + 50)
-        TVM_MAPACCIDTOHTREEITEM := 0x112A    ; (TV_FIRST + 42)
-        TVM_MAPHTREEITEMTOACCID := 0x112B    ; (TV_FIRST + 43)
-        TVM_SELECTITEM := 0x110B    ; (TV_FIRST + 11)
-        TVM_SETAUTOSCROLLINFO := 0x113B    ; (TV_FIRST + 59)
-        TVM_SETBKCOLOR := 0x111D    ; (TV_FIRST + 29)
-        TVM_SETEXTENDEDSTYLE := 0x112C    ; (TV_FIRST + 44)
-        TVM_SETIMAGELIST := 0x1109    ; (TV_FIRST + 9)
-        TVM_SETINDENT := 0x1107    ; (TV_FIRST + 7)
-        TVM_SETINSERTMARK := 0x111A    ; (TV_FIRST + 26)
-        TVM_SETINSERTMARKCOLOR := 0x1125    ; (TV_FIRST + 37)
-        TVM_SETITEMA := 0x110D    ; (TV_FIRST + 13)
-        TVM_SETITEMHEIGHT := 0x111B    ; (TV_FIRST + 27)
-        TVM_SETITEMW := 0x113F    ; (TV_FIRST + 63)
-        TVM_SETLINECOLOR := 0x1128    ; (TV_FIRST + 40)
-        TVM_SETSCROLLTIME := 0x1121    ; (TV_FIRST + 33)
-        TVM_SETTEXTCOLOR := 0x111E    ; (TV_FIRST + 30)
-        TVM_SETTOOLTIPS := 0x1118    ; (TV_FIRST + 24)
-        TVM_SETUNICODEFORMAT := 0x2005    ; (CCM_FIRST + 5) ; CCM_SETUNICODEFORMAT
-        TVM_SHOWINFOTIP := 0x1147    ; (TV_FIRST + 71) ; >= Vista
-        TVM_SORTCHILDREN := 0x1113    ; (TV_FIRST + 19)
-        TVM_SORTCHILDRENCB := 0x1115    ; (TV_FIRST + 21)
+        TVM_CREATEDRAGIMAGE := 0x1112,    ; (TV_FIRST + 18)
+        TVM_DELETEITEM := 0x1101,    ; (TV_FIRST + 1)
+        TVM_EDITLABELA := 0x110E,   ; (TV_FIRST + 14)
+        TVM_EDITLABELW := 0x1141,    ; (TV_FIRST + 65)
+        TVM_ENDEDITLABELNOW := 0x1116,    ; (TV_FIRST + 22)
+        TVM_ENSUREVISIBLE := 0x1114,    ; (TV_FIRST + 20)
+        TVM_EXPAND := 0x1102,    ; (TV_FIRST + 2)
+        TVM_GETBKCOLOR := 0x112F,    ; (TV_FIRST + 31)
+        TVM_GETCOUNT := 0x1105,    ; (TV_FIRST + 5)
+        TVM_GETEDITCONTROL := 0x110F,    ; (TV_FIRST + 15)
+        TVM_GETEXTENDEDSTYLE := 0x112D,    ; (TV_FIRST + 45)
+        TVM_GETIMAGELIST := 0x1108,    ; (TV_FIRST + 8)
+        TVM_GETINDENT := 0x1106,    ; (TV_FIRST + 6)
+        TVM_GETINSERTMARKCOLOR := 0x1126,    ; (TV_FIRST + 38)
+        TVM_GETISEARCHSTRINGA := 0x1117,    ; (TV_FIRST + 23)
+        TVM_GETISEARCHSTRINGW := 0x1140 ,   ; (TV_FIRST + 64)
+        TVM_GETITEMA := 0x110C ,   ; (TV_FIRST + 12)
+        TVM_GETITEMHEIGHT := 0x111C  ,  ; (TV_FIRST + 28)
+        TVM_GETITEMPARTRECT := 0x1148 ,   ; (TV_FIRST + 72) ; >= Vista
+        TVM_GETITEMRECT := 0x1104 ,   ; (TV_FIRST + 4)
+        TVM_GETITEMSTATE := 0x1127 ,   ; (TV_FIRST + 39)
+        TVM_GETITEMW := 0x113E ,   ; (TV_FIRST + 62)
+        TVM_GETLINECOLOR := 0x1129 ,   ; (TV_FIRST + 41)
+        TVM_GETNEXTITEM := 0x110A ,   ; (TV_FIRST + 10)
+        TVM_GETSCROLLTIME := 0x1122 ,   ; (TV_FIRST + 34)
+        TVM_GETSELECTEDCOUNT := 0x1146 ,   ; (TV_FIRST + 70) ; >= Vista
+        TVM_GETTEXTCOLOR := 0x1120 ,   ; (TV_FIRST + 32)
+        TVM_GETTOOLTIPS := 0x1119  ,  ; (TV_FIRST + 25)
+        TVM_GETUNICODEFORMAT := 0x2006 ,   ; (CCM_FIRST + 6) CCM_GETUNICODEFORMAT
+        TVM_GETVISIBLECOUNT := 0x1110 ,   ; (TV_FIRST + 16)
+        TVM_HITTEST := 0x1111  ,  ; (TV_FIRST + 17)
+        TVM_INSERTITEMA := 0x1100  ,  ; (TV_FIRST + 0)
+        TVM_INSERTITEMW := 0x1142 ,   ; (TV_FIRST + 50)
+        TVM_MAPACCIDTOHTREEITEM := 0x112A ,   ; (TV_FIRST + 42)
+        TVM_MAPHTREEITEMTOACCID := 0x112B ,   ; (TV_FIRST + 43)
+        TVM_SELECTITEM := 0x110B ,   ; (TV_FIRST + 11)
+        TVM_SETAUTOSCROLLINFO := 0x113B ,   ; (TV_FIRST + 59)
+        TVM_SETBKCOLOR := 0x111D ,   ; (TV_FIRST + 29)
+        TVM_SETEXTENDEDSTYLE := 0x112C  ,  ; (TV_FIRST + 44)
+        TVM_SETIMAGELIST := 0x1109 ,   ; (TV_FIRST + 9)
+        TVM_SETINDENT := 0x1107 ,   ; (TV_FIRST + 7)
+        TVM_SETINSERTMARK := 0x111A ,   ; (TV_FIRST + 26)
+        TVM_SETINSERTMARKCOLOR := 0x1125 ,   ; (TV_FIRST + 37)
+        TVM_SETITEMA := 0x110D ,   ; (TV_FIRST + 13)
+        TVM_SETITEMHEIGHT := 0x111B ,   ; (TV_FIRST + 27)
+        TVM_SETITEMW := 0x113F ,   ; (TV_FIRST + 63)
+        TVM_SETLINECOLOR := 0x1128  ,  ; (TV_FIRST + 40)
+        TVM_SETSCROLLTIME := 0x1121  ,  ; (TV_FIRST + 33)
+        TVM_SETTEXTCOLOR := 0x111E ,   ; (TV_FIRST + 30)
+        TVM_SETTOOLTIPS := 0x1118 ,   ; (TV_FIRST + 24)
+        TVM_SETUNICODEFORMAT := 0x2005  ,  ; (CCM_FIRST + 5) ; CCM_SETUNICODEFORMAT
+        TVM_SHOWINFOTIP := 0x1147 ,   ; (TV_FIRST + 71) ; >= Vista
+        TVM_SORTCHILDREN := 0x1113  ,  ; (TV_FIRST + 19)
+        TVM_SORTCHILDRENCB := 0x1115 ,   ; (TV_FIRST + 21)
         ; Notifications ========================================================================================================
-        TVN_ASYNCDRAW := -420    ; (TVN_FIRST - 20) >= Vista
-        TVN_BEGINDRAGA := -427    ; (TVN_FIRST - 7)
-        TVN_BEGINDRAGW := -456    ; (TVN_FIRST - 56)
-        TVN_BEGINLABELEDITA := -410    ; (TVN_FIRST - 10)
-        TVN_BEGINLABELEDITW := -456    ; (TVN_FIRST - 59)
-        TVN_BEGINRDRAGA := -408    ; (TVN_FIRST - 8)
-        TVN_BEGINRDRAGW := -457    ; (TVN_FIRST - 57)
-        TVN_DELETEITEMA := -409    ; (TVN_FIRST - 9)
-        TVN_DELETEITEMW := -458    ; (TVN_FIRST - 58)
-        TVN_ENDLABELEDITA := -411    ; (TVN_FIRST - 11)
-        TVN_ENDLABELEDITW := -460    ; (TVN_FIRST - 60)
-        TVN_GETDISPINFOA := -403    ; (TVN_FIRST - 3)
-        TVN_GETDISPINFOW := -452    ; (TVN_FIRST - 52)
-        TVN_GETINFOTIPA := -412    ; (TVN_FIRST - 13)
-        TVN_GETINFOTIPW := -414    ; (TVN_FIRST - 14)
-        TVN_ITEMCHANGEDA := -418    ; (TVN_FIRST - 18) ; >= Vista
-        TVN_ITEMCHANGEDW := -419    ; (TVN_FIRST - 19) ; >= Vista
-        TVN_ITEMCHANGINGA := -416    ; (TVN_FIRST - 16) ; >= Vista
-        TVN_ITEMCHANGINGW := -417    ; (TVN_FIRST - 17) ; >= Vista
-        TVN_ITEMEXPANDEDA := -406    ; (TVN_FIRST - 6)
-        TVN_ITEMEXPANDEDW := -455    ; (TVN_FIRST - 55)
-        TVN_ITEMEXPANDINGA := -405    ; (TVN_FIRST - 5)
-        TVN_ITEMEXPANDINGW := -454    ; (TVN_FIRST - 54)
-        TVN_KEYDOWN := -412    ; (TVN_FIRST - 12)
-        TVN_SELCHANGEDA := -402    ; (TVN_FIRST - 2)
-        TVN_SELCHANGEDW := -451    ; (TVN_FIRST - 51)
-        TVN_SELCHANGINGA := -401    ; (TVN_FIRST - 1)
-        TVN_SELCHANGINGW := -450    ; (TVN_FIRST - 50)
-        TVN_SETDISPINFOA := -404    ; (TVN_FIRST - 4)
-        TVN_SETDISPINFOW := -453    ; (TVN_FIRST - 53)
-        TVN_SINGLEEXPAND := -415    ; (TVN_FIRST - 15)
+        TVN_ASYNCDRAW := -420,    ; (TVN_FIRST - 20) >= Vista
+        TVN_BEGINDRAGA := -427,    ; (TVN_FIRST - 7)
+        TVN_BEGINDRAGW := -456,    ; (TVN_FIRST - 56)
+        TVN_BEGINLABELEDITA := -410,    ; (TVN_FIRST - 10)
+        TVN_BEGINLABELEDITW := -456,    ; (TVN_FIRST - 59)
+        TVN_BEGINRDRAGA := -408,    ; (TVN_FIRST - 8)
+        TVN_BEGINRDRAGW := -457,    ; (TVN_FIRST - 57)
+        TVN_DELETEITEMA := -409,    ; (TVN_FIRST - 9)
+        TVN_DELETEITEMW := -458,    ; (TVN_FIRST - 58)
+        TVN_ENDLABELEDITA := -411,    ; (TVN_FIRST - 11)
+        TVN_ENDLABELEDITW := -460,    ; (TVN_FIRST - 60)
+        TVN_GETDISPINFOA := -403,    ; (TVN_FIRST - 3)
+        TVN_GETDISPINFOW := -452,    ; (TVN_FIRST - 52)
+        TVN_GETINFOTIPA := -412,    ; (TVN_FIRST - 13)
+        TVN_GETINFOTIPW := -414,    ; (TVN_FIRST - 14)
+        TVN_ITEMCHANGEDA := -418,    ; (TVN_FIRST - 18) ; >= Vista
+        TVN_ITEMCHANGEDW := -419 ,   ; (TVN_FIRST - 19) ; >= Vista
+        TVN_ITEMCHANGINGA := -416 ,   ; (TVN_FIRST - 16) ; >= Vista
+        TVN_ITEMCHANGINGW := -417  ,  ; (TVN_FIRST - 17) ; >= Vista
+        TVN_ITEMEXPANDEDA := -406   , ; (TVN_FIRST - 6)
+        TVN_ITEMEXPANDEDW := -455  ,  ; (TVN_FIRST - 55)
+        TVN_ITEMEXPANDINGA := -405,    ; (TVN_FIRST - 5)
+        TVN_ITEMEXPANDINGW := -454,    ; (TVN_FIRST - 54)
+        TVN_KEYDOWN := -412,    ; (TVN_FIRST - 12)
+        TVN_SELCHANGEDA := -402,    ; (TVN_FIRST - 2)
+        TVN_SELCHANGEDW := -451,    ; (TVN_FIRST - 51)
+        TVN_SELCHANGINGA := -401,    ; (TVN_FIRST - 1)
+        TVN_SELCHANGINGW := -450,    ; (TVN_FIRST - 50)
+        TVN_SETDISPINFOA := -404,    ; (TVN_FIRST - 4)
+        TVN_SETDISPINFOW := -453,    ; (TVN_FIRST - 53)
+        TVN_SINGLEEXPAND := -415,    ; (TVN_FIRST - 15)
         ; Styles ===============================================================================================================
-        TVS_CHECKBOXES := 0x0100
-        TVS_DISABLEDRAGDROP := 0x0010
-        TVS_EDITLABELS := 0x0008
-        TVS_FULLROWSELECT := 0x1000
-        TVS_HASBUTTONS := 0x0001
-        TVS_HASLINES := 0x0002
-        TVS_INFOTIP := 0x0800
-        TVS_LINESATROOT := 0x0004
-        TVS_NOHSCROLL := 0x8000    ; TVS_NOSCROLL overrides this
-        TVS_NONEVENHEIGHT := 0x4000
-        TVS_NOSCROLL := 0x2000
-        TVS_NOTOOLTIPS := 0x0080
-        TVS_RTLREADING := 0x0040
-        TVS_SHOWSELALWAYS := 0x0020
-        TVS_SINGLEEXPAND := 0x0400
-        TVS_TRACKSELECT := 0x0200
+        TVS_CHECKBOXES := 0x0100,
+        TVS_DISABLEDRAGDROP := 0x0010,
+        TVS_EDITLABELS := 0x0008,
+        TVS_FULLROWSELECT := 0x1000,
+        TVS_HASBUTTONS := 0x0001,
+        TVS_HASLINES := 0x0002,
+        TVS_INFOTIP := 0x0800,
+        TVS_LINESATROOT := 0x0004,
+        TVS_NOHSCROLL := 0x8000,    ; TVS_NOSCROLL overrides this
+        TVS_NONEVENHEIGHT := 0x4000,
+        TVS_NOSCROLL := 0x2000,
+        TVS_NOTOOLTIPS := 0x0080,
+        TVS_RTLREADING := 0x0040,
+        TVS_SHOWSELALWAYS := 0x0020,
+        TVS_SINGLEEXPAND := 0x0400,
+        TVS_TRACKSELECT := 0x0200,
         ; Exstyles =============================================================================================================
-        TVS_EX_AUTOHSCROLL := 0x0020    ; >= Vista
-        TVS_EX_DIMMEDCHECKBOXES := 0x0200    ; >= Vista
-        TVS_EX_DOUBLEBUFFER := 0x0004    ; >= Vista
-        TVS_EX_DRAWIMAGEASYNC := 0x0400    ; >= Vista
-        TVS_EX_EXCLUSIONCHECKBOXES := 0x0100    ; >= Vista
-        TVS_EX_FADEINOUTEXPANDOS := 0x0040    ; >= Vista
-        TVS_EX_MULTISELECT := 0x0002    ; >= Vista - Not supported. Do not use.
-        TVS_EX_NOINDENTSTATE := 0x0008    ; >= Vista
-        TVS_EX_NOSINGLECOLLAPSE := 0x0001    ; >= Vista - Intended for internal use; not recommended for use in applications.
-        TVS_EX_PARTIALCHECKBOXES := 0x0080    ; >= Vista
-        TVS_EX_RICHTOOLTIP := 0x0010    ; >= Vista
+        TVS_EX_AUTOHSCROLL := 0x0020,    ; >= Vista
+        TVS_EX_DIMMEDCHECKBOXES := 0x0200,    ; >= Vista
+        TVS_EX_DOUBLEBUFFER := 0x0004,    ; >= Vista
+        TVS_EX_DRAWIMAGEASYNC := 0x0400,    ; >= Vista
+        TVS_EX_EXCLUSIONCHECKBOXES := 0x0100,    ; >= Vista
+        TVS_EX_FADEINOUTEXPANDOS := 0x0040,    ; >= Vista
+        TVS_EX_MULTISELECT := 0x0002,    ; >= Vista - Not supported. Do not use.
+        TVS_EX_NOINDENTSTATE := 0x0008,    ; >= Vista
+        TVS_EX_NOSINGLECOLLAPSE := 0x0001,    ; >= Vista - Intended for internal use; not recommended for use in applications.
+        TVS_EX_PARTIALCHECKBOXES := 0x0080,    ; >= Vista
+        TVS_EX_RICHTOOLTIP := 0x0010,    ; >= Vista
         ; Others ===============================================================================================================
         ; Item flags
-        TVIF_CHILDREN := 0x0040
-        TVIF_DI_SETITEM := 0x1000
-        TVIF_EXPANDEDIMAGE := 0x0200    ; >= Vista
-        TVIF_HANDLE := 0x0010
-        TVIF_IMAGE := 0x0002
-        TVIF_INTEGRAL := 0x0080
-        TVIF_PARAM := 0x0004
-        TVIF_SELECTEDIMAGE := 0x0020
-        TVIF_STATE := 0x0008
-        TVIF_STATEEX := 0x0100    ; >= Vista
-        TVIF_TEXT := 0x0001
+        TVIF_CHILDREN := 0x0040,
+        TVIF_DI_SETITEM := 0x1000,
+        TVIF_EXPANDEDIMAGE := 0x0200,    ; >= Vista
+        TVIF_HANDLE := 0x0010,
+        TVIF_IMAGE := 0x0002,
+        TVIF_INTEGRAL := 0x0080,
+        TVIF_PARAM := 0x0004,
+        TVIF_SELECTEDIMAGE := 0x0020,
+        TVIF_STATE := 0x0008,
+        TVIF_STATEEX := 0x0100,    ; >= Vista
+        TVIF_TEXT := 0x0001,
         ; Item states
-        TVIS_BOLD := 0x0010
-        TVIS_CUT := 0x0004
-        TVIS_DROPHILITED := 0x0008
-        TVIS_EXPANDED := 0x0020
-        TVIS_EXPANDEDONCE := 0x0040
-        TVIS_EXPANDPARTIAL := 0x0080
-        TVIS_OVERLAYMASK := 0x0F00
-        TVIS_SELECTED := 0x0002
-        TVIS_STATEIMAGEMASK := 0xF000
-        TVIS_USERMASK := 0xF000
+        TVIS_BOLD := 0x0010,
+        TVIS_CUT := 0x0004,
+        TVIS_DROPHILITED := 0x0008,
+        TVIS_EXPANDED := 0x0020,
+        TVIS_EXPANDEDONCE := 0x0040,
+        TVIS_EXPANDPARTIAL := 0x0080,
+        TVIS_OVERLAYMASK := 0x0F00,
+        TVIS_SELECTED := 0x0002,
+        TVIS_STATEIMAGEMASK := 0xF000,
+        TVIS_USERMASK := 0xF000,
         ; TVITEMEX uStateEx
-        TVIS_EX_ALL := 0x0002    ; not documented
-        TVIS_EX_DISABLED := 0x0002    ; >= Vista
-        TVIS_EX_FLAT := 0x0001
+        TVIS_EX_ALL := 0x0002,    ; not documented
+        TVIS_EX_DISABLED := 0x0002,    ; >= Vista
+        TVIS_EX_FLAT := 0x0001,
         ; TVINSERTSTRUCT hInsertAfter
-        TVI_FIRST := -65535    ; (-0x0FFFF)
-        TVI_LAST := -65534    ; (-0x0FFFE)
-        TVI_ROOT := -65536    ; (-0x10000)
-        TVI_SORT := -65533    ; (-0x0FFFD)
+        TVI_FIRST := -65535,    ; (-0x0FFFF)
+        TVI_LAST := -65534,    ; (-0x0FFFE)
+        TVI_ROOT := -65536,    ; (-0x10000)
+        TVI_SORT := -65533,    ; (-0x0FFFD)
         ; TVM_EXPAND wParam
-        TVE_COLLAPSE := 0x0001
-        TVE_COLLAPSERESET := 0x8000
-        TVE_EXPAND := 0x0002
-        TVE_EXPANDPARTIAL := 0x4000
-        TVE_TOGGLE := 0x0003
+        TVE_COLLAPSE := 0x0001,
+        TVE_COLLAPSERESET := 0x8000,
+        TVE_EXPAND := 0x0002,
+        TVE_EXPANDPARTIAL := 0x4000,
+        TVE_TOGGLE := 0x0003,
         ; TVM_GETIMAGELIST wParam
-        TVSIL_NORMAL := 0
-        TVSIL_STATE := 2
+        TVSIL_NORMAL := 0,
+        TVSIL_STATE := 2,
         ; TVM_GETNEXTITEM wParam
-        TVGN_CARET := 0x0009
-        TVGN_CHILD := 0x0004
-        TVGN_DROPHILITE := 0x0008
-        TVGN_FIRSTVISIBLE := 0x0005
-        TVGN_LASTVISIBLE := 0x000A
-        TVGN_NEXT := 0x0001
-        TVGN_NEXTSELECTED := 0x000B    ; >= Vista (MSDN)
-        TVGN_NEXTVISIBLE := 0x0006
-        TVGN_PARENT := 0x0003
-        TVGN_PREVIOUS := 0x0002
-        TVGN_PREVIOUSVISIBLE := 0x0007
-        TVGN_ROOT := 0x0000
+        TVGN_CARET := 0x0009,
+        TVGN_CHILD := 0x0004,
+        TVGN_DROPHILITE := 0x0008,
+        TVGN_FIRSTVISIBLE := 0x0005,
+        TVGN_LASTVISIBLE := 0x000A,
+        TVGN_NEXT := 0x0001,
+        TVGN_NEXTSELECTED := 0x000B,    ; >= Vista (MSDN)
+        TVGN_NEXTVISIBLE := 0x0006,
+        TVGN_PARENT := 0x0003,
+        TVGN_PREVIOUS := 0x0002,
+        TVGN_PREVIOUSVISIBLE := 0x0007,
+        TVGN_ROOT := 0x0000,
         ; TVM_SELECTITEM wParam
-        TVSI_NOSINGLEEXPAND := 0x8000    ; Should not conflict with TVGN flags.
+        TVSI_NOSINGLEEXPAND := 0x8000,    ; Should not conflict with TVGN flags.
         ; TVHITTESTINFO flags
-        TVHT_ABOVE := 0x0100
-        TVHT_BELOW := 0x0200
-        TVHT_NOWHERE := 0x0001
-        TVHT_ONITEMBUTTON := 0x0010
-        TVHT_ONITEMICON := 0x0002
-        TVHT_ONITEMINDENT := 0x0008
-        TVHT_ONITEMLABEL := 0x0004
-        TVHT_ONITEMRIGHT := 0x0020
-        TVHT_ONITEMSTATEICON := 0x0040
-        TVHT_TOLEFT := 0x0800
-        TVHT_TORIGHT := 0x0400
-        TVHT_ONITEM := 0x0046    ; (TVHT_ONITEMICON | TVHT_ONITEMLABEL | TVHT_ONITEMSTATEICON)
+        TVHT_ABOVE := 0x0100,
+        TVHT_BELOW := 0x0200,
+        TVHT_NOWHERE := 0x0001,
+        TVHT_ONITEMBUTTON := 0x0010,
+        TVHT_ONITEMICON := 0x0002,
+        TVHT_ONITEMINDENT := 0x0008,
+        TVHT_ONITEMLABEL := 0x0004,
+        TVHT_ONITEMRIGHT := 0x0020,
+        TVHT_ONITEMSTATEICON := 0x0040,
+        TVHT_TOLEFT := 0x0800,
+        TVHT_TORIGHT := 0x0400,
+        TVHT_ONITEM := 0x0046,    ; (TVHT_ONITEMICON | TVHT_ONITEMLABEL | TVHT_ONITEMSTATEICON)
         ; TVGETITEMPARTRECTINFO partID (>= Vista)
-        TVGIPR_BUTTON := 0x0001
+        TVGIPR_BUTTON := 0x0001,
         ; NMTREEVIEW action
-        TVC_BYKEYBOARD := 0x0002
-        TVC_BYMOUSE := 0x0001
-        TVC_UNKNOWN := 0x0000
+        TVC_BYKEYBOARD := 0x0002,
+        TVC_BYMOUSE := 0x0001,
+        TVC_UNKNOWN := 0x0000,
         ; TVN_SINGLEEXPAND return codes
-        TVNRET_DEFAULT := 0
-        TVNRET_SKIPOLD := 1
+        TVNRET_DEFAULT := 0,
+        TVNRET_SKIPOLD := 1,
         TVNRET_SKIPNEW := 2
         ; ======================================================================================================================
 
-        PAGE_NOACCESS := 0x01
-        PAGE_READONLY := 0x02
-        PAGE_READWRITE := 0x04
-        PAGE_WRITECOPY := 0x08
-        PAGE_EXECUTE := 0x10
-        PAGE_EXECUTE_READ := 0x20
-        PAGE_EXECUTE_READWRITE := 0x40
-        PAGE_EXECUTE_WRITECOPY := 0x80
-        PAGE_GUARD := 0x100
-        PAGE_NOCACHE := 0x200
-        PAGE_WRITECOMBINE := 0x400
-        MEM_COMMIT := 0x1000
-        MEM_RESERVE := 0x2000
-        MEM_DECOMMIT := 0x4000
-        MEM_RELEASE := 0x8000
-        MEM_FREE := 0x10000
-        MEM_PRIVATE := 0x20000
-        MEM_MAPPED := 0x40000
-        MEM_RESET := 0x80000
-        MEM_TOP_DOWN := 0x100000
-        MEM_WRITE_WATCH := 0x200000
-        MEM_PHYSICAL := 0x400000
-        MEM_ROTATE := 0x800000
-        MEM_LARGE_PAGES := 0x20000000
-        MEM_4MB_PAGES := 0x80000000
+        static PAGE_NOACCESS := 0x01,
+        PAGE_READONLY := 0x02,
+        PAGE_READWRITE := 0x04,
+        PAGE_WRITECOPY := 0x08,
+        PAGE_EXECUTE := 0x10,
+        PAGE_EXECUTE_READ := 0x20,
+        PAGE_EXECUTE_READWRITE := 0x40,
+        PAGE_EXECUTE_WRITECOPY := 0x80,
+        PAGE_GUARD := 0x100,
+        PAGE_NOCACHE := 0x200,
+        PAGE_WRITECOMBINE := 0x400,
+        MEM_COMMIT := 0x1000,
+        MEM_RESERVE := 0x2000,
+        MEM_DECOMMIT := 0x4000,
+        MEM_RELEASE := 0x8000,
+        MEM_FREE := 0x10000,
+        MEM_PRIVATE := 0x20000,
+        MEM_MAPPED := 0x40000,
+        MEM_RESET := 0x80000,
+        MEM_TOP_DOWN := 0x100000,
+        MEM_WRITE_WATCH := 0x200000,
+        MEM_PHYSICAL := 0x400000,
+        MEM_ROTATE := 0x800000,
+        MEM_LARGE_PAGES := 0x20000000,
+        MEM_4MB_PAGES := 0x80000000,
 
-        PROCESS_TERMINATE := (0x0001)
-        PROCESS_CREATE_THREAD := (0x0002)
-        PROCESS_SET_SESSIONID := (0x0004)
-        PROCESS_VM_OPERATION := (0x0008)
-        PROCESS_VM_READ := (0x0010)
-        PROCESS_VM_WRITE := (0x0020)
-        PROCESS_DUP_HANDLE := (0x0040)
-        PROCESS_CREATE_PROCESS := (0x0080)
-        PROCESS_SET_QUOTA := (0x0100)
-        PROCESS_SET_INFORMATION := (0x0200)
-        PROCESS_QUERY_INFORMATION := (0x0400)
-        PROCESS_SUSPEND_RESUME := (0x0800)
+        PROCESS_TERMINATE := (0x0001),
+        PROCESS_CREATE_THREAD := (0x0002),
+        PROCESS_SET_SESSIONID := (0x0004),
+        PROCESS_VM_OPERATION := (0x0008),
+        PROCESS_VM_READ := (0x0010),
+        PROCESS_VM_WRITE := (0x0020),
+        PROCESS_DUP_HANDLE := (0x0040),
+        PROCESS_CREATE_PROCESS := (0x0080),
+        PROCESS_SET_QUOTA := (0x0100),
+        PROCESS_SET_INFORMATION := (0x0200),
+        PROCESS_QUERY_INFORMATION := (0x0400),
+        PROCESS_SUSPEND_RESUME := (0x0800),
         PROCESS_QUERY_LIMITED_INFORMATION := (0x1000)
 
     ;----------------------------------------------------------------------------------------------
@@ -1816,7 +2122,7 @@ class RemoteTreeView
 	;
     GetText(pItem){
         this.TVM_GETITEM := 1 ? this.TVM_GETITEMW : this.TVM_GETITEMA
-
+		; this.TVHwnd := pItem
         ProcessId := WinGetpid("ahk_id " this.TVHwnd)
         hProcess := OpenProcess(this.PROCESS_VM_OPERATION|this.PROCESS_VM_READ
                                |this.PROCESS_VM_WRITE|this.PROCESS_QUERY_INFORMATION                               , false, ProcessId)
@@ -2014,23 +2320,23 @@ class RemoteTreeView
     }
 }
 
-    ; Run("Explore C:\")
+; Run("Explore C:\")
 
-    ; if !WinWaitActive("ahk_class CabinetWClass", , 10)
-    ;     Exit()
-    ; Sleep(3000)
-	; WinId := WinActive("A")
-	; TVId := ControlGetHwnd("SysTreeView321", "ahk_id " WinId)
-	; MyTV := RemoteTreeView(TVId)
-    
-    ; ; Display the content of the treeview
-    ; ; MsgBox(MyTV.GetControlContent())
+; if !WinWaitActive("ahk_class CabinetWClass", , 10)
+;     Exit()
+; Sleep(3000)
+; WinId := WinActive("A")
+; TVId := ControlGetHwnd("SysTreeView321", "ahk_id " WinId)
+; MyTV := RemoteTreeView(TVId)
 
-    ; ; Set selection to Documents and activate it
-    ; MyTV.SetSelectionByText("Documents")
-    ; ; MyTV.SetSelectionByText("Photos")
+; ; Display the content of the treeview
+; ; MsgBox(MyTV.GetControlContent())
 
-	; return
+; ; Set selection to Documents and activate it
+; MyTV.SetSelectionByText("Documents")
+; ; MyTV.SetSelectionByText("Photos")
+
+; return
 
 
 ;----------------------------------------------------------------------------------------------
@@ -2070,8 +2376,8 @@ OpenProcess(DesiredAccess, InheritHandle, ProcessId){
 ;
 CloseHandle(hObject){
 	return DllCall("CloseHandle"	             
-                    , "Ptr", hObject				 
-                    , "Int")
+					, "Ptr", hObject				 
+					, "Int")
 }
 
 ;----------------------------------------------------------------------------------------------
@@ -2122,12 +2428,12 @@ CloseHandle(hObject){
 ;
 VirtualAllocEx(hProcess, Address, Size, AllocationType, ProtectType){
 	return DllCall("VirtualAllocEx"				 
-                , "Ptr", hProcess				 
-                , "Ptr", Address				 
-                , "UInt", Size				 
-                , "UInt", AllocationType				 
-                , "UInt", ProtectType				 
-                , "Ptr")
+				, "Ptr", hProcess				 
+				, "Ptr", Address				 
+				, "UInt", Size				 
+				, "UInt", AllocationType				 
+				, "UInt", ProtectType				 
+				, "Ptr")
 }
 ; ---------------------------------------------------------------------------
 /**

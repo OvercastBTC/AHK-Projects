@@ -1,11 +1,10 @@
-	; https://github.com/Pulover/CbAutoComplete
-	; Updated to AutoHotkey v2 (2.0.10)
-	; Author (OG): Pulover
-	; Link: https://github.com/Pulover/CbAutoComplete
-	; Author (v2-beta): Ark565 (& others)
-	; Link: https://www.reddit.com/r/AutoHotkey/s/4InT1j8Mro
-	; Author (v2): OvercastBTC (updates to v2 2.0.10)
-
+	; @resource: https://github.com/Pulover/CbAutoComplete
+	; @changes Updated to AutoHotkey v2 (2.0.10)
+	; @author (origional): Pulover
+	; @resource: https://github.com/Pulover/CbAutoComplete
+	; @author (v2-beta): Ark565 (& others)
+	; @resource: https://www.reddit.com/r/AutoHotkey/s/4InT1j8Mro
+	; @author (v2): OvercastBTC (updates to v2 [2.0.10])
 
 	AutoComplete(ComboBox, entriesList) {
 	; CB_GETEDITSEL = 0x0140, CB_SETEDITSEL = 0x0142
