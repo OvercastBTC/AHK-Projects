@@ -280,18 +280,10 @@ clip_empty(mode := false){
 	try if WinActive('ahk_exe hznHorizon.exe'){
 		static fCtl := ControlGetFocus(), ClassNN := ControlGetClassNN(fCtl)
 	}
-	; return
+	teams()
+	return
 	try (CaretGetPos(&xC, &yC))
-	try MouseGetPos(&x, &y, &w, &control, 2)
-	; el := UIA.ElementFromHandle('A').Length
-	; el := UIA.ElementFromHandle('A',true)
-	el := UIA.CreateCacheRequest({Type: 'edit'},{Type: 'text'})
-	for each, value in el {
-		; ele := value.FindElements({Type: '50020 (Text)', LocalizedType: "text"})
-		Infos(value)
-	}
-	; elinfo := el.Children
-
+	try MouseGetPos(&x, &y, &w, &control)
 	; Infos(
 	; 	'xC[' xC '] yC[' yC ']'
 	; 	'`n'
@@ -341,8 +333,8 @@ clip_empty(mode := false){
 	; @step ...: get stats from text
 	; @why  ...: Can be used to determine the location of the text (line, total lines, etc.)
 	;! ---------------------------------------------------------------------------
-	; try stats := AE_GetStats()
-	stats := AE_GetStats()
+	try stats := AE_GetStats()
+	; stats := AE_GetStats()
 	; ---------------------------------------------------------------------------
 	; (text.length = 0) ? l := 1 : l := 0
 	; needle:= "D)\s+$"
@@ -459,8 +451,6 @@ clip_empty(mode := false){
 		'RegEx:'
 		'`n'
 		cpt
-		'`n'
-		'Control: ' ClassNN := ControlGetClassNN(control) '(' control ')'
 	)
 	; Sleep(100)
 	
@@ -475,6 +465,195 @@ clip_empty(mode := false){
 	; Send('^{left}+^{right}')
 	; _AE_bInpt_sLvl(0)
 	; Run(A_ScriptName)
+}
+teams(*){
+	x := 0, y := 0, w := 0, control := '', hwnd := '', WinA := 0, WinC := '', WinT := '', fCtl := 0
+	; el := UIA.ElementExist({Type: '50004 (Edit)', Name: "Type a message"})
+	WinA := WinActive('A'), text := '', aedit := []
+	WinC := WinGetClass(WinA)
+	WinT := WinGetTitle(WinA)
+	; fCtl := ControlGetFocus(WinA)
+	; ctls := WinGetControls(WinA)
+	; for each, value in ctls {
+	; 	text .= value '(' ControlGetHwnd(value) ')' '`n'
+	; }
+	MouseGetPos(&x, &y, &w, &control, 2)
+	classNN := ControlGetClassNN(control)
+	text .= 'Col: ' EditGetCurrentCol(control, WinA) '`n'
+	text .= 'Lin: ' EditGetCurrentLine(control, WinA) '`n'
+	; text .= EditGetLine(1,control, WinA) '`n'
+	text .= 'Lines: ' EditGetLineCount(control, WinA) '`n'
+	try text .= 'eTxt: ' sel := EditGetSelectedText(control, WinA) '`n'
+	try text .= 'cTxt: ' sel := ControlGetText(control, WinA) '`n'
+
+	el := UIA.ElementFromHandle('A')
+	edit := el.WaitElement({Type: '50004 (Edit)', Name: "Type a message"})
+	; aedit := edit.Children
+	; for each, value in aedit {
+	; 	text .= value '`n'
+	; }
+	Infos(
+		'el: '
+		'`n'
+		; edit.value
+		; '`n'
+		; edit.Children
+		'`n'
+		'edit.classname: ' edit.ClassName
+		'`n'
+		'x[' x ']' ' ' 'y[' y ']'
+		'`n'
+		'w(' w ')'
+		'`n'
+		'control: ' ClassNN ' (' control ')'
+		'`n'
+
+		'`n'
+		'WinA: ' WinA
+		'`n'
+		'WinC: ' WinC
+		'`n'
+		'WinT: ' WinT
+		'`n'
+		; 'fCtl: ' fCtl
+		'Controls List:`n' text
+	)
+	; Type: 50033 (Pane) Name: "Keatts, Terry | Microsoft Teams classic, Main Window" LocalizedType: "pane" ClassName: "Chrome_WidgetWin_1"
+	; 1: Type: 50030 (Document) Name: "Keatts, Terry | Microsoft Teams classic" Value: "https://teams.microsoft.com/_#/conversations/19:928764bb-35cc-44cc-9b42-7c8b166f9a8e_d5552339-b24f-492a-89b2-2a6b9889197f@unq.gbl.spaces?groupId=554f7f6a-aad5-49e4-b796-09580ac5f32c&ctx=chat" LocalizedType: "document" AutomationId: "27687008" ClassName: "Chrome_RenderWidgetHostHWND"
+	; 1,1: Type: 50006 (Image) LocalizedType: "image"
+	; 1,2: Type: 50000 (Button) Name: "Go back, hover to see history" LocalizedType: "button"
+	; 1,3: Type: 50000 (Button) Name: "Forward" LocalizedType: "button"
+	; 1,4: Type: 50026 (Group) LocalizedType: "search"
+	; 1,4,1: Type: 50003 (ComboBox) LocalizedType: "combo box" AutomationId: "controlbox-input-group"
+	; 1,4,1,1: Type: 50004 (Edit) Name: "Search" LocalizedType: "edit" AutomationId: "control-input"
+	; 1,5: Type: 50011 (MenuItem) Name: "Settings and more" LocalizedType: "menu item" AutomationId: "settings-menu-button"
+	; 1,6: Type: 50011 (MenuItem) Name: "Profile." LocalizedType: "menu item" AutomationId: "personDropdown"
+	; 1,7: Type: 50026 (Group) Name: "App bar, use up or down arrow keys to navigate through the controls" LocalizedType: "navigation" AutomationId: "teams-app-bar"
+	; 1,7,1: Type: 50008 (List) LocalizedType: "list"
+	; 1,7,1,1: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,1,1: Type: 50000 (Button) Name: "Activity Toolbar" LocalizedType: "button" AutomationId: "app-bar-14d6962d-6eeb-4f48-8890-de55454bb136"
+	; 1,7,1,2: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,2,1: Type: 50000 (Button) Name: "Chat Toolbar more options" LocalizedType: "button" AutomationId: "app-bar-86fcd49b-61a2-4701-b771-54728cd291fb"
+	; 1,7,1,3: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,3,1: Type: 50000 (Button) Name: "Teams Toolbar" LocalizedType: "button" AutomationId: "app-bar-2a84919f-59d8-4441-a975-2a8c2643b741"
+	; 1,7,1,4: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,4,1: Type: 50000 (Button) Name: "Calendar Toolbar" LocalizedType: "button" AutomationId: "app-bar-ef56c0de-36fc-4ef8-b417-3d82ba9d073c"
+	; 1,7,1,5: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,5,1: Type: 50000 (Button) Name: "Calls Toolbar" LocalizedType: "button" AutomationId: "app-bar-20c3440d-c67e-4420-9f80-0e50c39693df"
+	; 1,7,1,6: Type: 50007 (ListItem) Name: "More added apps" LocalizedType: "list item"
+	; 1,7,1,6,1: Type: 50011 (MenuItem) Name: "More added apps Toolbar" LocalizedType: "menu item" AutomationId: "apps-button"
+	; 1,7,1,7: Type: 50007 (ListItem) Name: "More added apps" LocalizedType: "list item"
+	; 1,7,1,8: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,8,1: Type: 50000 (Button) Name: "Apps Toolbar" LocalizedType: "button" AutomationId: "discover-apps-button"
+	; 1,7,1,9: Type: 50007 (ListItem) LocalizedType: "list item"
+	; 1,7,1,9,1: Type: 50011 (MenuItem) Name: "Help Toolbar. Press F1 to open help menu." LocalizedType: "menu item" AutomationId: "app-bar-help-button"
+	; 1,8: Type: 50011 (MenuItem) Name: "Opens card" LocalizedType: "menu item"
+	; 1,8,1: Type: 50006 (Image) Name: "Profile picture of Keatts, Terry." LocalizedType: "image"
+	; 1,9: Type: 50011 (MenuItem) Name: "Opens card" LocalizedType: "menu item" AutomationId: "chat-header-title"
+	; 1,10: Type: 50018 (Tab) LocalizedType: "tab" AutomationId: "messages-header-v2-tab-group"
+	; 1,10,1: Type: 50019 (TabItem) Name: "Chat" LocalizedType: "tab item"
+	; 1,10,2: Type: 50019 (TabItem) Name: "4 more tabs. Press Enter to expand list." LocalizedType: "tab item" AutomationId: "show-more-tabs-button"
+	; 1,10,2,1: Type: 50019 (TabItem) Name: "4 more" LocalizedType: "tab item"
+	; 1,10,2,2: Type: 50000 (Button) LocalizedType: "button"
+	; 1,11: Type: 50000 (Button) Name: "Add a tab" LocalizedType: "button" AutomationId: "add-tab-button-v2"
+	; 1,12: Type: 50021 (ToolBar) LocalizedType: "tool bar"
+	; 1,12,1: Type: 50000 (Button) Name: "Video call" LocalizedType: "button"
+	; 1,12,2: Type: 50000 (Button) Name: "Audio call" LocalizedType: "button"
+	; 1,13: Type: 50000 (Button) Name: "Screen sharing" LocalizedType: "button"
+	; 1,14: Type: 50000 (Button) Name: "Add people" LocalizedType: "button"
+	; 1,15: Type: 50000 (Button) Name: "Pop out chat" LocalizedType: "button" AutomationId: "chat-header-popout-button"
+	; 1,16: Type: 50021 (ToolBar) LocalizedType: "tool bar"
+	; 1,17: Type: 50026 (Group) LocalizedType: "group" AutomationId: "aria-live-assertive"
+	; 1,18: Type: 50026 (Group) LocalizedType: "group" AutomationId: "aria-live-polite"
+	; 1,19: Type: 50026 (Group) LocalizedType: "group"
+	; 1,19,1: Type: 50030 (Document) Name: "Microsoft Teams" Value: "https://teams.microsoft.com/multi-window/?agent=electron&version=23110224705" LocalizedType: "document"
+	; 1,19,1,1: Type: 50026 (Group) Name: "Message List" LocalizedType: "main"
+	; 1,19,1,1,1: Type: 50020 (Text) Name: "11:27 AM" LocalizedType: "text"
+	; 1,19,1,1,2: Type: 50020 (Text) Name: "Bacon, Adam JCD" LocalizedType: "text"
+	; 1,19,1,1,3: Type: 50026 (Group) Name: "UTF-8 is not required. Removed. Bacon, Adam JCD Today at 11:27 AM." LocalizedType: "group" AutomationId: "message-body-1703964463954"
+	; 1,19,1,1,3,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,3,2: Type: 50020 (Text) Name: "UTF-8 is not required. Removed." LocalizedType: "text"
+	; 1,19,1,1,4: Type: 50020 (Text) Name: "11:28 AM" LocalizedType: "text"
+	; 1,19,1,1,5: Type: 50020 (Text) Name: "Bacon, Adam JCD" LocalizedType: "text"
+	; 1,19,1,1,6: Type: 50026 (Group) Name: "P.S. I'm on my phone, not at my computer Bacon, Adam JCD Today at 11:28 AM." LocalizedType: "group" AutomationId: "message-body-1703964486402"
+	; 1,19,1,1,6,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,6,2: Type: 50020 (Text) Name: "P.S. I'm on my phone, not at my computer" LocalizedType: "text"
+	; 1,19,1,1,7: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,8: Type: 50020 (Text) Name: "11:28 AM" LocalizedType: "text"
+	; 1,19,1,1,9: Type: 50026 (Group) Name: "I only seem to get that error when the directory or json file is missing. Keatts, Terry Today at 11:28 AM." LocalizedType: "group" AutomationId: "message-body-1703964505612"
+	; 1,19,1,1,9,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,9,2: Type: 50020 (Text) Name: "I only seem to get that error when the directory or json file is missing." LocalizedType: "text"
+	; 1,19,1,1,10: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,11: Type: 50020 (Text) Name: "11:28 AM" LocalizedType: "text"
+	; 1,19,1,1,12: Type: 50026 (Group) Name: "added to the startup to create a directory if one doesn't exist and that fixed that Keatts, Terry Today at 11:28 AM." LocalizedType: "group" AutomationId: "message-body-1703964521128"
+	; 1,19,1,1,12,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,12,2: Type: 50020 (Text) Name: "added to the startup to create a directory if one doesn't exist and that fixed that" LocalizedType: "text"
+	; 1,19,1,1,13: Type: 50020 (Text) Name: "11:29 AM" LocalizedType: "text"
+	; 1,19,1,1,14: Type: 50020 (Text) Name: "Bacon, Adam JCD" LocalizedType: "text"
+	; 1,19,1,1,15: Type: 50026 (Group) Name: "Did you use what I just wrote? Or not, and you were getting the error? Bacon, Adam JCD Today at 11:29 AM." LocalizedType: "group" AutomationId: "message-body-1703964592396"
+	; 1,19,1,1,15,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,15,2: Type: 50020 (Text) Name: "Did you use what I just wrote? Or not, and you were getting the error?" LocalizedType: "text"
+	; 1,19,1,1,16: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,17: Type: 50020 (Text) Name: "11:37 AM" LocalizedType: "text"
+	; 1,19,1,1,18: Type: 50026 (Group) Name: "My error is not the UTF-8, it is that I keep making invalid directorys.... Keatts, Terry Today at 11:37 AM." LocalizedType: "group" AutomationId: "message-body-1703965038543"
+	; 1,19,1,1,18,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,18,2: Type: 50020 (Text) Name: "My error is not the UTF-8, it is that I keep making invalid directorys...." LocalizedType: "text"
+	; 1,19,1,1,19: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,20: Type: 50020 (Text) Name: "11:41 AM" LocalizedType: "text"
+	; 1,19,1,1,21: Type: 50026 (Group) Name: "Now have integrated RecLib into Omnibar Keatts, Terry Today at 11:41 AM." LocalizedType: "group" AutomationId: "message-body-1703965296018"
+	; 1,19,1,1,21,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,21,2: Type: 50020 (Text) Name: "Now have integrated RecLib into Omnibar" LocalizedType: "text"
+	; 1,19,1,1,22: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,23: Type: 50020 (Text) Name: "11:42 AM" LocalizedType: "text"
+	; 1,19,1,1,24: Type: 50026 (Group) Name: "Also, migrated the former managed Rec library content onto the JSON file Keatts, Terry Today at 11:42 AM." LocalizedType: "group" AutomationId: "message-body-1703965329126"
+	; 1,19,1,1,24,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,24,2: Type: 50020 (Text) Name: "Also, migrated the former managed Rec library content onto the JSON file" LocalizedType: "text"
+	; 1,19,1,1,25: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,26: Type: 50020 (Text) Name: "12:14 PM" LocalizedType: "text"
+	; 1,19,1,1,27: Type: 50026 (Group) Name: "BTW, confirmed that the compiled code reads and write to JSON just fine Keatts, Terry Today at 12:14 PM." LocalizedType: "group" AutomationId: "message-body-1703967258351"
+	; 1,19,1,1,27,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,27,2: Type: 50020 (Text) Name: "BTW, confirmed that the compiled code reads and write to JSON just fine" LocalizedType: "text"
+	; 1,19,1,1,28: Type: 50020 (Text) Name: "12:55 PM" LocalizedType: "text"
+	; 1,19,1,1,29: Type: 50020 (Text) Name: "Bacon, Adam JCD" LocalizedType: "text"
+	; 1,19,1,1,30: Type: 50026 (Group) Name: "Sent Begin Reference, Also, migrated the former managed Rec library content onto the JSON file, Keatts, Terry, 12/30/2023, 11:42 AM, End reference into a separate json file? or the same json file as you are using for startup stuff? Bacon, Adam JCD Today at 12:55 PM." LocalizedType: "group" AutomationId: "message-body-1703969732247"
+	; 1,19,1,1,30,1: Type: 50000 (Button) Name: "More message options" LocalizedType: "button"
+	; 1,19,1,1,30,2: Type: 50026 (Group) Name: "Begin Reference, Also, migrated the former managed Rec library content onto the JSON file, Keatts, Terry, 12/30/2023, 11:42 AM, End reference" LocalizedType: "group"
+	; 1,19,1,1,30,2,1: Type: 50020 (Text) Name: "Keatts, Terry" LocalizedType: "text"
+	; 1,19,1,1,30,2,2: Type: 50020 (Text) Name: "12/30/2023, 11:42 AM" LocalizedType: "text"
+	; 1,19,1,1,30,2,3: Type: 50020 (Text) Name: "Also, migrated the former managed Rec library content onto the JSON file" LocalizedType: "text"
+	; 1,19,1,1,30,3: Type: 50020 (Text) Name: "into a separate json file? or the same json file as you are using for startup stuff?" LocalizedType: "text"
+	; 1,19,1,2: Type: 50026 (Group) Name: "Compose" LocalizedType: "region"
+	; 1,19,1,2,1: Type: 50020 (Text) Name: "Keatts, Terry is out of office and may not respond" LocalizedType: "text"
+	; 1,19,1,2,2: Type: 50000 (Button) Name: "Close Keatts, Terry is out of office and may not respond" LocalizedType: "button" AutomationId: "banner-close-button-id"
+	; 1,19,1,2,3: Type: 50004 (Edit) Name: "Type a message" Value: "Inspections: [see below for details on Inspections]
+	; - Hoist and head frame: Annual. MSHA regulations require adequate levels of equipment maintenance be conducted.
+	; - Frame/Shaft/Rails: W
+	; - Other: D
+	; - Subsidence audits are performed continuously." LocalizedType: "edit" AutomationId: "new-message-81d9c242-1978-48eb-aee7-f654c1bae43e"
+	; 1,19,1,2,3,1: Type: 50020 (Text) Name: "Inspections: [see below for details on Inspections]" LocalizedType: "text"
+	; 1,19,1,2,3,2: Type: 50020 (Text) Name: "- Hoist and head frame: Annual. MSHA regulations require adequate levels of equipment maintenance be conducted." LocalizedType: "text"
+	; 1,19,1,2,3,3: Type: 50020 (Text) Name: "- Frame/Shaft/Rails: W" LocalizedType: "text"
+	; 1,19,1,2,3,4: Type: 50020 (Text) Name: "- Other: D" LocalizedType: "text"
+	; 1,19,1,2,3,5: Type: 50020 (Text) Name: "- Subsidence audits are performed continuously." LocalizedType: "text"
+	; 1,19,1,2,4: Type: 50021 (ToolBar) Name: "Actions for new message" LocalizedType: "tool bar"
+	; 1,19,1,2,4,1: Type: 50000 (Button) Name: "Format (Ctrl+Shift+X)" LocalizedType: "button"
+	; 1,19,1,2,4,2: Type: 50011 (MenuItem) Name: "Set delivery options" LocalizedType: "menu item"
+	; 1,19,1,2,4,3: Type: 50011 (MenuItem) Name: "Attach files" LocalizedType: "menu item"
+	; 1,19,1,2,4,4: Type: 50026 (Group) LocalizedType: "group"
+	; 1,19,1,2,4,4,1: Type: 50011 (MenuItem) Name: "Messaging extensions" LocalizedType: "menu item"
+	; 1,19,1,2,5: Type: 50021 (ToolBar) Name: "Video clip" LocalizedType: "tool bar"
+	; 1,19,1,2,5,1: Type: 50000 (Button) Name: "Record a video clip" LocalizedType: "button"
+	; 1,19,1,2,6: Type: 50021 (ToolBar) Name: "Send" LocalizedType: "tool bar"
+	; 1,19,1,2,6,1: Type: 50000 (Button) Name: "Send (Ctrl+Enter)" LocalizedType: "button"
+	; 1,19,1,3: Type: 50026 (Group) LocalizedType: "group"
+	; 1,19,1,4: Type: 50026 (Group) LocalizedType: "group"
+	; 1,19,1,5: Type: 50017 (StatusBar) LocalizedType: "status" AutomationId: "a11y-status-message"
+	; 2: Type: 50033 (Pane) LocalizedType: "pane" ClassName: "Intermediate D3D Window"
+	; 3: Type: 50033 (Pane) LocalizedType: "pane"
+	; 3,1: Type: 50033 (Pane) LocalizedType: "pane"
+	; 3,1,1: Type: 50033 (Pane) LocalizedType: "pane"
+	; 3,1,1,1: Type: 50033 (Pane) LocalizedType: "pane"
+	; 3,1,1,1,1: Type: 50033 (Pane) LocalizedType: "pane"
 }
 ; :*:`  ::{bs 1}{right}{Space} ;? testing purposes only
 #HotIf

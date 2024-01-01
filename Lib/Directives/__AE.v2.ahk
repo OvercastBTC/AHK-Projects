@@ -151,6 +151,13 @@ AE_Select_Beginning(*) {
 	DllCall('SendMessage', 'UInt', hCtl, 'UInt', Msg, 'UInt', wParam, 'UInt', lParam)
 	; return
 }
+AE_Set_Sel(wParam := 0, lParam := 0, hWnd := tryHwnd(),*) {
+	Static Msg := EM_SETSEL := 177 ;, wParam := 0, lParam := 0
+	; hCtl := ControlGetFocus('A')
+	; DllCall('SendMessage', 'UInt', hCtl, 'UInt', Msg, 'UInt', wParam, 'UInt', lParam)
+	DllCall('SendMessage', 'UInt', hWnd, 'UInt', Msg, 'UInt', wParam, 'UInt', lParam)
+	; return
+}
 AE_Get_TEXTLIMIT(*) {
 	; Static Msg := EM_GETLIMITTEXT := 1061, wParam := 0, lParam := 0
 	; Static Msg := EM_GETTEXTLENGTH := 0x000E, wParam := 0, lParam := 0
@@ -201,12 +208,18 @@ AE_GetSelText(ClassNN := ControlGetClassNN(ControlGetFocus('A')), hWnd := tryHwn
 ; --------------------------------------------------------------------------------
 ; Retrieves the starting and ending character positions of the selection in a rich edit control
 ; ---------------------------------------------------------------------------
-AE_GetSel(ClassNN := ControlGetClassNN(ControlGetFocus('A')), hWnd := tryHwnd()) { 
+AE_GetSel(ClassNN := 0, hWnd := tryHwnd()) { 
 	; Returns an object containing the keys S (start of selection) and E (end of selection)).
 	; EM_EXGETSEL = 0x0434
+	try ClassNN := ControlGetClassNN(ControlGetFocus('A'))
 	CR := Buffer(8, 0)
-	SendMessage(0x0434, 0, CR.Ptr,ClassNN, hWnd)
-	Return {S: NumGet(CR, 0, "Int"), E: NumGet(CR, 4, "Int")}
+	CE := Buffer(8, 0)
+	; SendMessage(0x0434, 0, CR.Ptr,ClassNN, hWnd)
+	; SendMessage(0x00B0, 0, CE.Ptr,ClassNN, hWnd)
+	; SendMessage(0x00B0, CR.Ptr,0 ,ClassNN, hWnd)
+	SendMessage(0x00B0, 0, CE.Ptr,hWnd, hWnd)
+	SendMessage(0x00B0, CR.Ptr,0 ,hWnd, hWnd)
+	Return {S: NumGet(CR, 0, "Int"), E: NumGet(CE, 0, "Int")}
 }
 ; --------------------------------------------------------------------------------
 AE_GetText(ClassNN := ControlGetClassNN(ControlGetFocus('A')), hWnd := tryHwnd()) {  ; Gets the whole content of the control as plain text
@@ -293,6 +306,7 @@ AE_GetLineIndex(LineNumber, ClassNN := ControlGetClassNN(ControlGetFocus('A')), 
 	; Infos('LI: ' LI)
 	Return LI 
 }
+
 ; --------------------------------------------------------------------------------
 ; Statistics
 ; Get some statistic values
@@ -324,7 +338,7 @@ AE_GetStats(hWnd := tryHwnd()) {
 		LineCount1 := AE_GetLineCount(ClassNN, hWnd)
 		; getline := SendMessage(EM_GETLINE,1, SBgl.Ptr, ClassNN , hWnd)
 		Line := (SendMessage(EM_LINEFROMCHAR, -1, 0, ClassNN,hWnd) + 1)
-		; GetCaretLine := EditGetCurrentLine(ClassNN, 'A')
+		
 		GetCaretLine := AE_GetCaretLine(-1,ClassNN, hWnd)
 		CurrentCol := EditGetCurrentCol(ClassNN, hWnd)
 		; ---------------------------------------------------------------------------
@@ -342,10 +356,12 @@ AE_GetStats(hWnd := tryHwnd()) {
 		Result1 := (SendMessage(EM_LINEINDEX, this_line+1, 0, ClassNN,hWnd)) ;? starting character number
 		LI1 := AE_GetLineIndex(this_line+1, ClassNN, hWnd) ;
 		LinePos1 := (NumGet(SB, "Ptr") - (LI1+1))
-		num_of_chars := LI1 - LI
+		; num_of_chars := LI1 - LI
+		num_of_chars := SendMessage(WM_GETTEXTLENGTH := 0x000E, 0, 0, ,hWnd)
 		; LI = 0 ? LinePos++ : false
 		; ---------------------------------------------------------------------------
 		CharCount := AE_GetTextLen(ClassNN, hWnd)
+		; start := 
 		Infos(
 			; 'fCtl: ' fCtl
 			; '`n'
@@ -382,6 +398,8 @@ AE_GetStats(hWnd := tryHwnd()) {
 		; , 3000)
 	}
 	
+	; Stats.SafePush(getsel.S)
+	; Stats.SafePush(getsel.E)
 	Stats.SafePush('LinePos: ' LinePos)
 	Stats.SafePush('Line: ' Line)
 	Stats.SafePush('LineCount: ' LineCount)
